@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Mensageiro Luvas</string>
+    <string name="navigation_opener">Open navigation menu</string>
+    <string name="navigation_closer">Close navigation menu</string>
+
+    <string name="Home">
+        Home
+    </string>
+
+
+</resources>
