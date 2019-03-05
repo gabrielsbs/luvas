@@ -13,6 +13,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private DrawerLayout menu_lateral;
     private NavigationView navigationView;
+
+
 
     private static final String TAG = "MainActivity";
 
@@ -105,47 +108,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-
+                navigationView.setCheckedItem(R.id.nav_home);
                 if (isChecked) {
                     setTheme(R.style.AppTheme_NoActionBar_Font);
-                    Spannable span = new SpannableString("Home");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
-                    span = new SpannableString("Exercícios");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,10,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_treinamento).setTitle(span);
-                    span = new SpannableString("Conectar Luvas");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_devices).setTitle(span);
-                    span = new SpannableString("Bluetooth");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,9,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_bt).setTitle(span);
-                    span = new SpannableString("Acessibilidade");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_acessibilidade).setTitle(span);
-                    span = new SpannableString("Fonte");
-                    span.setSpan(new AbsoluteSizeSpan(35,true),0,5,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_font).setTitle(span);
+                    changeMenuFontSize(35);
                 } else {
                     setTheme(R.style.AppTheme_NoActionBar);
-                    Spannable span = new SpannableString("Home");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
-                    span = new SpannableString("Exercícios");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,10,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_treinamento).setTitle(span);
-                    span = new SpannableString("Conectar Luvas");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_devices).setTitle(span);
-                    span = new SpannableString("Ligar Bluetooth");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_bt).setTitle(span);
-                    span = new SpannableString("Acessibilidade");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_acessibilidade).setTitle(span);
-                    span = new SpannableString("Aumentar Fonte");
-                    span.setSpan(new AbsoluteSizeSpan(15,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    navigationView.getMenu().findItem(R.id.nav_font).setTitle(span);
+                    changeMenuFontSize(15);
                 }
             }
         });
@@ -186,6 +155,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_UUID));
 
+    }
+
+    private void changeMenuFontSize(int size){
+        Spannable span = new SpannableString("Home");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
+        span = new SpannableString("Exercícios");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,10,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_treinamento).setTitle(span);
+        span = new SpannableString("Conectar Luvas");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_devices).setTitle(span);
+        span = new SpannableString("Bluetooth");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,9,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_bt).setTitle(span);
+        span = new SpannableString("Acessibilidade");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,14,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_acessibilidade).setTitle(span);
+        span = new SpannableString("Fonte");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,5,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_font).setTitle(span);
+        ((LuvasApp) this.getApplication()).setFontSize(size);
     }
 
     @Override
