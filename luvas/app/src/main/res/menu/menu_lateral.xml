@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
         <item
+            android:id="@+id/nav_messenger"
+            android:icon="@drawable/ic_message"
+            android:title="Mensagens" />
+        <item
             android:id="@+id/nav_treinamento"
             android:icon="@drawable/ic_book"
             android:title="Exercícios" />

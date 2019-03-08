@@ -37,6 +37,7 @@ import com.labbbio.apiluvas.BluetoothService;
 import com.labbbio.luvas.fragments.BluetoohFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
+import com.labbbio.luvas.fragments.MessengerFragment;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     BluetoothAdapter mBluetoothAdapter;
 
     Switch btSwitch;
+    Switch fontSwitch;
 
     BluetoothReceiver broadcastReceiver = new BluetoothReceiver();
 
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         navigationView.getMenu().findItem(R.id.nav_font).setActionView(new Switch(this));
-        Switch fontSwitch = (Switch) navigationView.getMenu().findItem(R.id.nav_font).getActionView();
+        fontSwitch = (Switch) navigationView.getMenu().findItem(R.id.nav_font).getActionView();
 
         fontSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -110,11 +112,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
                 navigationView.setCheckedItem(R.id.nav_home);
                 if (isChecked) {
-                    setTheme(R.style.AppTheme_NoActionBar_Font);
-                    changeMenuFontSize(35);
+                    enlargeFontSize();
                 } else {
-                    setTheme(R.style.AppTheme_NoActionBar);
-                    changeMenuFontSize(15);
+                    reduceFontSize();
                 }
             }
         });
@@ -157,6 +157,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void setFontSwitch(){
+        fontSwitch.toggle();
+    }
+
+    public void enlargeFontSize(){
+        setTheme(R.style.AppTheme_NoActionBar_Font);
+        changeMenuFontSize(35);
+    }
+
+    public void reduceFontSize(){
+        setTheme(R.style.AppTheme_NoActionBar);
+        changeMenuFontSize(15);
+    }
+
     private void changeMenuFontSize(int size){
         Spannable span = new SpannableString("Home");
         span.setSpan(new AbsoluteSizeSpan(size,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -186,18 +200,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_home:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
                 break;
+            case R.id.nav_messenger:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                break;
             case R.id.nav_treinamento:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
                 break;
             case R.id.nav_bt:
                 return true;
             case R.id.nav_devices:
-                if(!mBluetoothAdapter.isEnabled()){
-                    btSwitch.toggle();
-                }
-                btnEnableDisable_Discoverable();
-                btnDiscover();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+                btFragmentStart();
                 break;
             case R.id.nav_acessibilidade:
                 Toast.makeText(this, "Acessibilidade", Toast.LENGTH_SHORT).show();
@@ -217,6 +229,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
 
+    }
+
+    public boolean btIsEnabled(){
+        if(mBluetoothAdapter.isEnabled())
+            return true;
+        else
+            return false;
+    }
+
+
+    public void btFragmentStart(){
+        navigationView.setCheckedItem(R.id.nav_devices);
+        if(!mBluetoothAdapter.isEnabled()){
+            btSwitch.toggle();
+        }
+        btnEnableDisable_Discoverable();
+        btnDiscover();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+    }
+
+    public void messengerFragmentStart(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_messenger);
+    }
+
+    public void learningFragmentStart(){
+       getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_treinamento);
+    }
+
+    public void setBtSwitch(){
+        btSwitch.toggle();
     }
 
     public void enableDisableBT(){

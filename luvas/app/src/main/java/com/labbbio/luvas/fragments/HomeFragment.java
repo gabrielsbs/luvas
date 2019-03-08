@@ -1,33 +1,29 @@
 package com.labbbio.luvas.fragments;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
+
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.labbbio.luvas.LuvasApp;
+import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
-import java.nio.charset.Charset;
+
 
 public class HomeFragment extends Fragment {
-    EditText outputText;
-    TextView inputText;
-    StringBuilder messages;
-    ImageButton btnSend;
+
+    CardView messengerCard, btCard, learningCard, accessCard, fontCard, deviceCard;
+    GridLayout gridLayout;
 
 
 
@@ -35,47 +31,100 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        gridLayout = view.findViewById(R.id.grid);
+        messengerCard = view.findViewById(R.id.messengerCard);
+        learningCard = view.findViewById(R.id.exercizeCard);
+        deviceCard = view.findViewById(R.id.deviceCard);
+        btCard = view.findViewById(R.id.btCard);
+        accessCard = view.findViewById(R.id.acessCard);
+        fontCard = view.findViewById(R.id.fontCard);
 
-        outputText = view.findViewById(R.id.outputText);
-        inputText = view.findViewById(R.id.incommingMessage);
-        btnSend = view.findViewById(R.id.buttonSend);
+        if(((MainActivity)getActivity()).btIsEnabled()){
+            btCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
+        }
 
-        final Activity actiity = this.getActivity();
+        setSingleEvent();
 
-        messages = new StringBuilder();
-        messages.append("Mensagens Recebidas: \n");
-
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Sendind","Button pressed");
-                byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-                ((LuvasApp) actiity.getApplication()).getBluetoothService().write(bytes);
-                outputText.setText("");
-            }
-        });
-        IntentFilter intentF = new IntentFilter("incommingMessage");
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);
 
         return view;
     }
 
-    private BroadcastReceiver incommingMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("Incomming","Broadcast OK");
-            String text = intent.getStringExtra("message");
-            messages.append(text + "\n");
+    private void setSingleEvent() {
+        messengerCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).messengerFragmentStart();
+            }
+        });
+        learningCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).learningFragmentStart();
+            }
+        });
 
-            inputText.setText(messages);
-        }
-    };
+        deviceCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).btFragmentStart();
+            }
+        });
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d("Incomming","Destroy");
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
+        btCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(btCard.getCardBackgroundColor().getDefaultColor() == -1){
+                    ((MainActivity) getActivity()).setBtSwitch();
+                    btCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
+                }else{
+                    ((MainActivity) getActivity()).setBtSwitch();
+                    btCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
+                }
+
+            }
+        });
+
+        accessCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(accessCard.getCardBackgroundColor().getDefaultColor() == -1){
+
+                }
+
+            }
+        });
+
+        fontCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(fontCard.getCardBackgroundColor().getDefaultColor() == -1){
+                    ((MainActivity)getActivity()).enlargeFontSize();
+                    fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
+                    changeHomeTextSize(35);
+
+                }else{
+                    ((MainActivity)getActivity()).reduceFontSize();
+                    fontCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
+                    changeHomeTextSize(15);
+                }
+
+            }
+        });
+
     }
+
+    public void changeHomeTextSize(int size){
+
+        for(int i = 0; i<gridLayout.getChildCount();i++){
+            CardView childCard = (CardView) gridLayout.getChildAt(i);
+            LinearLayout linearLayout = (LinearLayout) childCard.getChildAt(0);
+            TextView tv = (TextView) linearLayout.getChildAt(1);
+            tv.setTextSize(size);
+        }
+
+    }
+
+
 
 }
