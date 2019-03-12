@@ -129,7 +129,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         enableDisableBT();
                     }
                 } else {
-                    enableDisableBT();
+                    if(mBluetoothAdapter.isEnabled())
+                        enableDisableBT();
                 }
             }
         });
@@ -171,10 +172,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         changeMenuFontSize(15);
     }
 
+    public boolean getFontState(){
+        int size = ((LuvasApp)this.getApplication()).getFontSize();
+        if( size == 35)
+            return true;
+        else
+            return false;
+    }
+
     private void changeMenuFontSize(int size){
         Spannable span = new SpannableString("Home");
         span.setSpan(new AbsoluteSizeSpan(size,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
+        span = new SpannableString("Mensagens");
+        span.setSpan(new AbsoluteSizeSpan(size,true),0,9,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        navigationView.getMenu().findItem(R.id.nav_messenger).setTitle(span);
         span = new SpannableString("Exercícios");
         span.setSpan(new AbsoluteSizeSpan(size,true),0,10,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         navigationView.getMenu().findItem(R.id.nav_treinamento).setTitle(span);

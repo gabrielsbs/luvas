@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
@@ -39,12 +40,17 @@ public class HomeFragment extends Fragment {
         accessCard = view.findViewById(R.id.acessCard);
         fontCard = view.findViewById(R.id.fontCard);
 
+        int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
+        changeHomeTextSize(size);
+
         if(((MainActivity)getActivity()).btIsEnabled()){
             btCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
         }
 
-        setSingleEvent();
+        if(((MainActivity) this.getActivity()).getFontState())
+            fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
 
+        setSingleEvent();
 
         return view;
     }
@@ -99,14 +105,14 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
 
                 if(fontCard.getCardBackgroundColor().getDefaultColor() == -1){
-                    ((MainActivity)getActivity()).enlargeFontSize();
+                    ((MainActivity)getActivity()).setFontSwitch();
                     fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
-                    changeHomeTextSize(35);
+                   // changeHomeTextSize(35);
 
                 }else{
-                    ((MainActivity)getActivity()).reduceFontSize();
+                    ((MainActivity)getActivity()).setFontSwitch();
                     fontCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
-                    changeHomeTextSize(15);
+               //     changeHomeTextSize(15);
                 }
 
             }

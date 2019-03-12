@@ -59,11 +59,11 @@ public class LearningFragment extends Fragment {
 
         int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
         TextView textView = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
-        textView.setText("PRÉ LINGUÍSTICO");
+        textView.setText("PRÉ-LINGUÍSTICO");
         textView.setTextSize(size);
         tabs.getTabAt(0).setCustomView(textView);
         TextView textView2 = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
-        textView2.setText("PÓS LINGUÍSTICO");
+        textView2.setText("PÓS-LINGUÍSTICO");
         textView2.setTextSize(size);
         tabs.getTabAt(1).setCustomView(textView2);
     }
