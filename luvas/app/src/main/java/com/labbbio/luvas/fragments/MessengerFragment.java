@@ -40,7 +40,9 @@ public class MessengerFragment extends Fragment {
         inputText = view.findViewById(R.id.incommingMessage);
         btnSend = view.findViewById(R.id.buttonSend);
 
-        final Activity actiity = this.getActivity();
+        setTextSize();
+
+        final Activity activity = this.getActivity();
 
         messages = new StringBuilder();
         messages.append("Mensagens Recebidas: \n");
@@ -48,9 +50,9 @@ public class MessengerFragment extends Fragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Sendind","Button pressed");
+                Log.d("Sending","Button pressed");
                 byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-                ((LuvasApp) actiity.getApplication()).getBluetoothService().write(bytes);
+                ((LuvasApp) activity.getApplication()).getBluetoothService().write(bytes);
                 outputText.setText("");
             }
         });
@@ -71,6 +73,12 @@ public class MessengerFragment extends Fragment {
         }
     };
 
+    public void setTextSize(){
+        int size = ((LuvasApp) getActivity().getApplication()).getFontSize();
+        outputText.setTextSize(size);
+        inputText.setTextSize(size);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -78,4 +86,17 @@ public class MessengerFragment extends Fragment {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
     }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter intentF = new IntentFilter("incommingMessage");
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);
+        inputText.setText(messages);
+    }
 }

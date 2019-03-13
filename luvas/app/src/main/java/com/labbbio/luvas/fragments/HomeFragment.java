@@ -26,6 +26,10 @@ public class HomeFragment extends Fragment {
     CardView messengerCard, btCard, learningCard, accessCard, fontCard, deviceCard;
     GridLayout gridLayout;
 
+    private static final int MESSENGER_FRAGMENT = 1;
+    private static final int LEARNING_FRAGMENT = 2;
+    private static final int BLUETOOTH_FRAGMENT = 3;
+
 
 
     @Nullable
@@ -49,7 +53,6 @@ public class HomeFragment extends Fragment {
 
         if(((MainActivity) this.getActivity()).getFontState())
             fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
-
         setSingleEvent();
 
         return view;
@@ -60,12 +63,14 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).messengerFragmentStart();
+                ((MainActivity)getActivity()).setCurrentFragment(MESSENGER_FRAGMENT);
             }
         });
         learningCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).learningFragmentStart();
+                ((MainActivity)getActivity()).setCurrentFragment(LEARNING_FRAGMENT);
             }
         });
 
@@ -73,6 +78,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).btFragmentStart();
+                ((MainActivity)getActivity()).setCurrentFragment(BLUETOOTH_FRAGMENT);
             }
         });
 

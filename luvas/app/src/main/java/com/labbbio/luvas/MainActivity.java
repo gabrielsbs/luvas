@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
                 super.onDrawerOpened(drawerView);
                 InputMethodManager inputMethodManager = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -173,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,new IntentFilter("Bond_Change"));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_UUID));
+        IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(auxiliarReceiver, BTIntent);
 
     }
 
@@ -293,6 +294,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_treinamento);
     }
 
+    public void setCurrentFragment(int fragment){
+        currentFragment = fragment;
+    }
+
     public void refreashFragment(){
         switch (currentFragment){
             case HOME_FRAGMENT:
@@ -325,15 +330,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBTIntent, 1);
 
-            IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(auxiliarReceiver, BTIntent);
+            //IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            //registerReceiver(auxiliarReceiver, BTIntent);
         }
         if(mBluetoothAdapter.isEnabled()){
             Log.d(TAG, "enableDisableBT: disabling BT.");
             mBluetoothAdapter.disable();
 
-            IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(auxiliarReceiver, BTIntent);
+            //IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            //registerReceiver(auxiliarReceiver, BTIntent);
         }
 
     }
@@ -397,10 +402,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switch(state){
                     case BluetoothAdapter.STATE_ON:
                         Log.d(TAG,"Creating bt connection");
+                        if(!btSwitch.isChecked()){
+                            btSwitch.toggle();
+                            if(currentFragment == HOME_FRAGMENT){
+                                HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                                fragment.setBtCard(true);
+                            }
+                        }
                         createBtConnection();
                         break;
                     case BluetoothAdapter.STATE_OFF:
                         Log.d(TAG, "onReceive: STATE OFF");
+                        if(btSwitch.isChecked()){
+                            btSwitch.toggle();
+                            if(currentFragment == HOME_FRAGMENT){
+                                HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                                fragment.setBtCard(false);
+                            }
+                        }
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         Log.d(TAG, "mBroadcastReceiver1: STATE TURNING OFF");
@@ -500,6 +519,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
+        unregisterReceiver(auxiliarReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver();
     }
 }
 
