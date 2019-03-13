@@ -11,16 +11,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
@@ -40,10 +38,19 @@ import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
 
 
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout menu_lateral;
     private NavigationView navigationView;
+
+    private static final int HOME_FRAGMENT = 0;
+    private static final int MESSENGER_FRAGMENT = 1;
+    private static final int LEARNING_FRAGMENT = 2;
+    private static final int BLUETOOTH_FRAGMENT = 3;
+
+
+    private int currentFragment = HOME_FRAGMENT;
 
 
 
@@ -109,13 +116,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fontSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                navigationView.setCheckedItem(R.id.nav_home);
+
                 if (isChecked) {
                     enlargeFontSize();
                 } else {
                     reduceFontSize();
                 }
+                refreashFragment();
             }
         });
         navigationView.getMenu().findItem(R.id.nav_bt).setActionView(new Switch(this));
@@ -127,10 +134,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (isChecked) {
                     if(!mBluetoothAdapter.isEnabled()) {
                         enableDisableBT();
+                        if(currentFragment == HOME_FRAGMENT){
+                            HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                            fragment.setBtCard(true);
+                        }
                     }
+
                 } else {
-                    if(mBluetoothAdapter.isEnabled())
+                    if(mBluetoothAdapter.isEnabled()) {
                         enableDisableBT();
+                        if(currentFragment == HOME_FRAGMENT){
+                            HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                            fragment.setBtCard(false);
+                        }
+                    }
+
                 }
             }
         });
@@ -211,16 +229,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()){
             case R.id.nav_home:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                currentFragment = HOME_FRAGMENT;
                 break;
             case R.id.nav_messenger:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                currentFragment = MESSENGER_FRAGMENT;
                 break;
             case R.id.nav_treinamento:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                currentFragment = LEARNING_FRAGMENT;
                 break;
             case R.id.nav_bt:
                 return true;
             case R.id.nav_devices:
+                currentFragment = BLUETOOTH_FRAGMENT;
                 btFragmentStart();
                 break;
             case R.id.nav_acessibilidade:
@@ -271,6 +293,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_treinamento);
     }
 
+    public void refreashFragment(){
+        switch (currentFragment){
+            case HOME_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                break;
+            case MESSENGER_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                break;
+            case LEARNING_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                break;
+            case BLUETOOTH_FRAGMENT:
+                currentFragment = BLUETOOTH_FRAGMENT;
+                btFragmentStart();
+                break;
+        }
+
+    }
+
     public void setBtSwitch(){
         btSwitch.toggle();
     }
@@ -282,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!mBluetoothAdapter.isEnabled()){
             Log.d(TAG, "enableDisableBT: enabling BT.");
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableBTIntent);
+            startActivityForResult(enableBTIntent, 1);
 
             IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(auxiliarReceiver, BTIntent);
@@ -295,6 +336,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             registerReceiver(auxiliarReceiver, BTIntent);
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1){
+            Log.d(TAG,"Request Received");
+            if(resultCode == RESULT_CANCELED){
+                Log.d(TAG,"Permission Denied");
+                //toggle back if permission to turn the bluetooth on is denied
+                btSwitch.toggle();
+                if(currentFragment == HOME_FRAGMENT){
+                    HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    fragment.setBtCard(false);
+                }
+            }
+        }
     }
 
     private BroadcastReceiver auxiliarReceiver = new BroadcastReceiver() {
@@ -342,8 +400,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         createBtConnection();
                         break;
                     case BluetoothAdapter.STATE_OFF:
-
+                        Log.d(TAG, "onReceive: STATE OFF");
                         break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        Log.d(TAG, "mBroadcastReceiver1: STATE TURNING OFF");
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        Log.d(TAG, "mBroadcastReceiver1: STATE TURNING ON");
+                        break;
+                }
+            }
+
+            if(action.equals(mBluetoothAdapter.ACTION_REQUEST_ENABLE)){
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,mBluetoothAdapter.ERROR);
+                switch (state){
+
                 }
             }
 

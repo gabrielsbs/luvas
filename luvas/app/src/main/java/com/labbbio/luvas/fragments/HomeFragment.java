@@ -131,6 +131,13 @@ public class HomeFragment extends Fragment {
 
     }
 
+    public void setBtCard(boolean state){
+        if (state)
+            btCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
+        else
+            btCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
+    }
+
 
 
 }
