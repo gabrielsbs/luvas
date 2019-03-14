@@ -247,7 +247,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 btFragmentStart();
                 break;
             case R.id.nav_acessibilidade:
-                Toast.makeText(this, "Acessibilidade", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                startActivityForResult(intent, 0);
+                Toast.makeText(this, "Ative o LuvasTalkBack", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_font:
                 return true;
@@ -440,6 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
     };
+
 
     public void createBtConnection(){
 

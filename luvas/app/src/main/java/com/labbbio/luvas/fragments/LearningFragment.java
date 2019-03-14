@@ -50,6 +50,7 @@ public class LearningFragment extends Fragment {
         tabs = view.findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
+
         setTabFontSize();
 
         return view;
@@ -62,6 +63,7 @@ public class LearningFragment extends Fragment {
         textView.setText("PRÉ-LINGUÍSTICO");
         textView.setTextSize(size);
         tabs.getTabAt(0).setCustomView(textView);
+
         TextView textView2 = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
         textView2.setText("PÓS-LINGUÍSTICO");
         textView2.setTextSize(size);
