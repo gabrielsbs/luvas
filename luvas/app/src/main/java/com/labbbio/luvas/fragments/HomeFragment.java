@@ -26,11 +26,6 @@ public class HomeFragment extends Fragment {
     CardView messengerCard, btCard, learningCard, accessCard, fontCard, deviceCard;
     GridLayout gridLayout;
 
-    private static final int MESSENGER_FRAGMENT = 1;
-    private static final int LEARNING_FRAGMENT = 2;
-    private static final int BLUETOOTH_FRAGMENT = 3;
-
-
 
     @Nullable
     @Override
@@ -53,24 +48,23 @@ public class HomeFragment extends Fragment {
 
         if(((MainActivity) this.getActivity()).getFontState())
             fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
-        setSingleEvent();
+
+        setClickEvent();
 
         return view;
     }
 
-    private void setSingleEvent() {
+    private void setClickEvent() {
         messengerCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).messengerFragmentStart();
-                ((MainActivity)getActivity()).setCurrentFragment(MESSENGER_FRAGMENT);
             }
         });
         learningCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).learningFragmentStart();
-                ((MainActivity)getActivity()).setCurrentFragment(LEARNING_FRAGMENT);
             }
         });
 
@@ -78,7 +72,6 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((MainActivity)getActivity()).btFragmentStart();
-                ((MainActivity)getActivity()).setCurrentFragment(BLUETOOTH_FRAGMENT);
             }
         });
 
@@ -100,6 +93,12 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(accessCard.getCardBackgroundColor().getDefaultColor() == -1){
+                    ((MainActivity)getActivity()).accessibilityFragmentStart();
+                    accessCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
+
+                }else{
+                    ((MainActivity)getActivity()).accessibilityFragmentStart();
+                    accessCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
 
                 }
 
@@ -113,12 +112,11 @@ public class HomeFragment extends Fragment {
                 if(fontCard.getCardBackgroundColor().getDefaultColor() == -1){
                     ((MainActivity)getActivity()).setFontSwitch();
                     fontCard.setCardBackgroundColor(Color.parseColor("#FF6F00"));
-                   // changeHomeTextSize(35);
 
                 }else{
                     ((MainActivity)getActivity()).setFontSwitch();
                     fontCard.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
-               //     changeHomeTextSize(15);
+
                 }
 
             }

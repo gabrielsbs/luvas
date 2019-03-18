@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.R;
+import com.labbbio.luvas.TalkBackLuvas;
 
 import java.nio.charset.Charset;
 
@@ -28,6 +30,10 @@ public class MessengerFragment extends Fragment {
     TextView inputText;
     StringBuilder messages;
     ImageButton btnSend;
+    StringBuilder temp;
+    FloatingActionButton fab;
+
+    final String TAG = "Messenger";
 
 
 
@@ -35,27 +41,45 @@ public class MessengerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_messenger, container, false);
-
+        setRetainInstance(true);
         outputText = view.findViewById(R.id.outputText);
         inputText = view.findViewById(R.id.incommingMessage);
         btnSend = view.findViewById(R.id.buttonSend);
+        //fab = view.findViewById(R.id.fab);
 
         setTextSize();
 
         final Activity activity = this.getActivity();
 
-        messages = new StringBuilder();
-        messages.append("Mensagens Recebidas: \n");
+        if(temp != null){
+            messages = temp;
+            inputText.setText(messages);
+        }else{
+            messages = new StringBuilder();
+            messages.append("Mensagens Recebidas: \n");
+        }
+
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Sending","Button pressed");
+                Log.d(TAG,"Button pressed");
                 byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
                 ((LuvasApp) activity.getApplication()).getBluetoothService().write(bytes);
                 outputText.setText("");
             }
         });
+/*
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Delete button");
+                messages.setLength(0);
+                messages.append("Mensagens Recebidas: \n");
+                inputText.setText(messages);
+            }
+        });*/
+
         IntentFilter intentF = new IntentFilter("incommingMessage");
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);
 
@@ -80,23 +104,11 @@ public class MessengerFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         Log.d("Incomming","Destroy");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
+        temp = messages;
     }
 
-    @Override
-    public void onPause(){
-        super.onPause();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        IntentFilter intentF = new IntentFilter("incommingMessage");
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);
-        inputText.setText(messages);
-    }
 }

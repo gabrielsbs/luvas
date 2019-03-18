@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        if(mBluetoothAdapter.isEnabled())
+            createBtConnection();
 
         menu_lateral = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -199,6 +201,114 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
     }
 
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+        switch (menuItem.getItemId()){
+            case R.id.nav_home:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                currentFragment = HOME_FRAGMENT;
+                break;
+            case R.id.nav_messenger:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                currentFragment = MESSENGER_FRAGMENT;
+                break;
+            case R.id.nav_treinamento:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                currentFragment = LEARNING_FRAGMENT;
+                break;
+            case R.id.nav_bt:
+                return true;
+            case R.id.nav_devices:
+                currentFragment = BLUETOOTH_FRAGMENT;
+                btFragmentStart();
+                break;
+            case R.id.nav_acessibilidade:
+                accessibilityFragmentStart();
+                break;
+            case R.id.nav_font:
+                return true;
+        }
+        menu_lateral.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(menu_lateral.isDrawerOpen(GravityCompat.START)) {
+            menu_lateral.closeDrawer(GravityCompat.START);
+        }else{
+            homeFragmentStart();
+            //super.onBackPressed();
+        }
+
+
+    }
+
+    public boolean btIsEnabled(){
+        if(mBluetoothAdapter.isEnabled())
+            return true;
+        else
+            return false;
+    }
+
+    public void homeFragmentStart(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_home);
+        currentFragment = HOME_FRAGMENT;
+    }
+
+    public void btFragmentStart(){
+        navigationView.setCheckedItem(R.id.nav_devices);
+        if(!mBluetoothAdapter.isEnabled()){
+            btSwitch.toggle();
+        }
+        btnEnableDisable_Discoverable();
+        btnDiscover();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+        currentFragment = BLUETOOTH_FRAGMENT;
+    }
+
+    public void messengerFragmentStart(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_messenger);
+        currentFragment = MESSENGER_FRAGMENT;
+    }
+
+    public void learningFragmentStart(){
+       getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+        navigationView.setCheckedItem(R.id.nav_treinamento);
+        currentFragment = LEARNING_FRAGMENT;
+    }
+
+    public void accessibilityFragmentStart(){
+        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        startActivityForResult(intent, 0);
+        Toast.makeText(this, "Ative o LuvasTalkBack", Toast.LENGTH_LONG).show();
+    }
+
+
+    public void refreashFragment(){
+        switch (currentFragment){
+            case HOME_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                break;
+            case MESSENGER_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                break;
+            case LEARNING_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                break;
+            case BLUETOOTH_FRAGMENT:
+                currentFragment = BLUETOOTH_FRAGMENT;
+                btFragmentStart();
+                break;
+        }
+
+    }
+
     private void changeMenuFontSize(int size){
         Spannable span = new SpannableString("Home");
         span.setSpan(new AbsoluteSizeSpan(size,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -224,101 +334,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ((LuvasApp) this.getApplication()).setFontSize(size);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-        switch (menuItem.getItemId()){
-            case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                currentFragment = HOME_FRAGMENT;
-                break;
-            case R.id.nav_messenger:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-                currentFragment = MESSENGER_FRAGMENT;
-                break;
-            case R.id.nav_treinamento:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
-                currentFragment = LEARNING_FRAGMENT;
-                break;
-            case R.id.nav_bt:
-                return true;
-            case R.id.nav_devices:
-                currentFragment = BLUETOOTH_FRAGMENT;
-                btFragmentStart();
-                break;
-            case R.id.nav_acessibilidade:
-                Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                startActivityForResult(intent, 0);
-                Toast.makeText(this, "Ative o LuvasTalkBack", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.nav_font:
-                return true;
-        }
-        menu_lateral.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(menu_lateral.isDrawerOpen(GravityCompat.START)) {
-            menu_lateral.closeDrawer(GravityCompat.START);
-        }else{
-            super.onBackPressed();
-        }
-
-    }
-
-    public boolean btIsEnabled(){
-        if(mBluetoothAdapter.isEnabled())
-            return true;
-        else
-            return false;
-    }
-
-
-    public void btFragmentStart(){
-        navigationView.setCheckedItem(R.id.nav_devices);
-        if(!mBluetoothAdapter.isEnabled()){
-            btSwitch.toggle();
-        }
-        btnEnableDisable_Discoverable();
-        btnDiscover();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
-    }
-
-    public void messengerFragmentStart(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-        navigationView.setCheckedItem(R.id.nav_messenger);
-    }
-
-    public void learningFragmentStart(){
-       getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
-        navigationView.setCheckedItem(R.id.nav_treinamento);
-    }
-
-    public void setCurrentFragment(int fragment){
-        currentFragment = fragment;
-    }
-
-    public void refreashFragment(){
-        switch (currentFragment){
-            case HOME_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                break;
-            case MESSENGER_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-                break;
-            case LEARNING_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
-                break;
-            case BLUETOOTH_FRAGMENT:
-                currentFragment = BLUETOOTH_FRAGMENT;
-                btFragmentStart();
-                break;
-        }
-
-    }
-
     public void setBtSwitch(){
         btSwitch.toggle();
     }
@@ -331,16 +346,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d(TAG, "enableDisableBT: enabling BT.");
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBTIntent, 1);
-
-            //IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            //registerReceiver(auxiliarReceiver, BTIntent);
         }
         if(mBluetoothAdapter.isEnabled()){
             Log.d(TAG, "enableDisableBT: disabling BT.");
             mBluetoothAdapter.disable();
-
-            //IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            //registerReceiver(auxiliarReceiver, BTIntent);
         }
 
     }
@@ -519,22 +528,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG,"OnDestroy");
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG,"Resume");
         registerReceiver();
     }
 }

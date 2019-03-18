@@ -40,6 +40,7 @@ public class BluetoohFragment extends Fragment{
     BluetoothAdapter mBluetoothAdapter;
 
     public ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
+    private ArrayList<BluetoothDevice> temp;
 
     public DeviceListAdapter mDeviceListAdapter;
 
@@ -66,6 +67,7 @@ public class BluetoohFragment extends Fragment{
     private BroadcastReceiver bondReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"Bonded");
             if (intent != null && intent.getExtras() != null) {
                 mBTDevice= (BluetoothDevice) intent.getExtras().get("bondedDevice");
             }
@@ -76,11 +78,21 @@ public class BluetoohFragment extends Fragment{
 
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setRetainInstance(true);
+        Log.d(TAG,"onCreateView");
         View view = inflater.inflate(R.layout.fragment_bluetooth, container, false);
-
         lvNewDevices = view.findViewById(R.id.lvNewDevices);
+        uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+        if(temp != null){
+            mBTDevices = temp;
+            mDeviceListAdapter = new DeviceListAdapter(this.getContext(), R.layout.device_adapter_view, mBTDevices);
+            lvNewDevices.setAdapter(mDeviceListAdapter);
+        }
+
+
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothConnection = ((LuvasApp) this.getActivity().getApplication()).getBluetoothService();
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(discoveryReceiver,
                 new IntentFilter("Device_Added"));
@@ -110,6 +122,7 @@ public class BluetoohFragment extends Fragment{
 
                     mBTDevice = mBTDevices.get(i);
 
+                    Log.d(TAG, "onItemClick: deviceName = " + mBTDevice.getName());
 
                     startConnection();
                 }
@@ -132,7 +145,19 @@ public class BluetoohFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG,"onDestroy");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(bondReceiver);
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView");
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(bondReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
+        temp = mBTDevices;
+
+    }
+
 }
