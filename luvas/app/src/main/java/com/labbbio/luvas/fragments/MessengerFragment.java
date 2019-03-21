@@ -42,10 +42,13 @@ public class MessengerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_messenger, container, false);
         setRetainInstance(true);
+
+        this.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container).getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
         outputText = view.findViewById(R.id.outputText);
         inputText = view.findViewById(R.id.incommingMessage);
         btnSend = view.findViewById(R.id.buttonSend);
-        //fab = view.findViewById(R.id.fab);
+        fab = view.findViewById(R.id.fab);
 
         setTextSize();
 
@@ -69,7 +72,7 @@ public class MessengerFragment extends Fragment {
                 outputText.setText("");
             }
         });
-/*
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +81,7 @@ public class MessengerFragment extends Fragment {
                 messages.append("Mensagens Recebidas: \n");
                 inputText.setText(messages);
             }
-        });*/
+        });
 
         IntentFilter intentF = new IntentFilter("incommingMessage");
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);

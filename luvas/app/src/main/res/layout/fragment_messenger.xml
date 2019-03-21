@@ -19,12 +19,24 @@
         android:textColor="@android:color/black"
         />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_delete" />
+
+
     <LinearLayout
         android:id="@+id/send_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
+
 
         <EditText
             android:id="@+id/outputText"
@@ -40,5 +52,6 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_send_"
             tools:ignore="VectorDrawableCompat" />
+
     </LinearLayout>
 </RelativeLayout>

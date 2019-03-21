@@ -42,6 +42,7 @@ public class LearningFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
         // Setting ViewPager for each Tabs
         viewPager = view.findViewById(R.id.viewpager);
