@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private int currentFragment = HOME_FRAGMENT;
+    private int lastFragment = HOME_FRAGMENT;
 
 
 
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                // Code here will be triggered once the drawer closes. Will hide the keyboard
                 super.onDrawerClosed(drawerView);
                 InputMethodManager inputMethodManager = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onDrawerOpened(View drawerView) {
+                // Code here will be triggered once the drawer closes. Will hide the keyboard
                 super.onDrawerOpened(drawerView);
                 InputMethodManager inputMethodManager = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -120,12 +124,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 if (isChecked) {
                     enlargeFontSize();
+
                 } else {
                     reduceFontSize();
                 }
                 refreashFragment();
             }
         });
+
+
         navigationView.getMenu().findItem(R.id.nav_bt).setActionView(new Switch(this));
         btSwitch = (Switch) navigationView.getMenu().findItem(R.id.nav_bt).getActionView();
 
@@ -172,36 +179,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("Device_Found"));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,new IntentFilter("Bond_Change"));
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_UUID));
+        registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(auxiliarReceiver, BTIntent);
 
     }
 
-    public void setFontSwitch(){
-        fontSwitch.toggle();
+
+    public int getLastFragment() {
+        return lastFragment;
     }
 
-    public void enlargeFontSize(){
-        setTheme(R.style.AppTheme_NoActionBar_Font);
-        changeMenuFontSize(35);
+    public void setLastFragment(int lastFragment) {
+        this.lastFragment = lastFragment;
     }
-
-    public void reduceFontSize(){
-        setTheme(R.style.AppTheme_NoActionBar);
-        changeMenuFontSize(15);
-    }
-
-    public boolean getFontState(){
-        int size = ((LuvasApp)this.getApplication()).getFontSize();
-        if( size == 35)
-            return true;
-        else
-            return false;
-    }
-
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -220,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 currentFragment = LEARNING_FRAGMENT;
                 break;
             case R.id.nav_bt:
+
                 return true;
             case R.id.nav_devices:
                 currentFragment = BLUETOOTH_FRAGMENT;
@@ -235,18 +228,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void setFontSwitch(){
+        fontSwitch.toggle();
+    }
+
+    public void enlargeFontSize(){
+        setTheme(R.style.AppTheme_NoActionBar_Font);
+        ((LuvasApp) this.getApplication()).setCardColor("#f5f021");
+        ((LuvasApp) this.getApplication()).setBackgroundColor("#1d1d1e");
+        ((LuvasApp) this.getApplication()).setHighlightCardColor("#abad68");
+        ((LuvasApp) this.getApplication()).setTextColor("#f5f021");
+        changeMenuFontSize(35);
+    }
+
+    public void reduceFontSize(){
+        setTheme(R.style.AppTheme_NoActionBar);
+        ((LuvasApp) this.getApplication()).setCardColor("#ffffff");
+        ((LuvasApp) this.getApplication()).setBackgroundColor("#ffffff");
+        ((LuvasApp) this.getApplication()).setHighlightCardColor("#FF6F00");
+        ((LuvasApp) this.getApplication()).setTextColor("#000000");
+        changeMenuFontSize(15);
+    }
+
+    public boolean getFontState(){
+        int size = ((LuvasApp)this.getApplication()).getFontSize();
+        if( size == 35)
+            return true;
+        else
+            return false;
+    }
+
+
+    // Vai ser chamado quando o botão voltar for clickado. Volta para o fragmento home.
     @Override
     public void onBackPressed() {
         if(menu_lateral.isDrawerOpen(GravityCompat.START)) {
             menu_lateral.closeDrawer(GravityCompat.START);
         }else{
-            homeFragmentStart();
-            //super.onBackPressed();
+            if(currentFragment != HOME_FRAGMENT)
+                homeFragmentStart();
+            else
+                super.onBackPressed();
         }
 
 
     }
 
+    //Checka se o bluetooth está ativo. Usado pelo HomeFragment
     public boolean btIsEnabled(){
         if(mBluetoothAdapter.isEnabled())
             return true;
@@ -254,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
     }
 
+    // As funções seguintes iniciam um fragmento, HomeFragment precisa delas.
     public void homeFragmentStart(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         navigationView.setCheckedItem(R.id.nav_home);
@@ -290,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    //Reinicia o fragmento atual para atualizar a mudança da fonte
     public void refreashFragment(){
         switch (currentFragment){
             case HOME_FRAGMENT:
@@ -308,7 +338,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+    public void goLastFragment(){
+        switch (lastFragment){
+            case HOME_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                break;
+            case MESSENGER_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                break;
+            case LEARNING_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                break;
+            case BLUETOOTH_FRAGMENT:
+                currentFragment = BLUETOOTH_FRAGMENT;
+                btFragmentStart();
+                break;
+        }
 
+    }
+
+    // Muda o tamanho da fonte do menu lateral
     private void changeMenuFontSize(int size){
         Spannable span = new SpannableString("Home");
         span.setSpan(new AbsoluteSizeSpan(size,true),0,4,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -354,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    // Resultado do pedido para ligar o bluetooth
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -371,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Registrador auxiliar usado para tratar eventos relacionados ao bluetooth
     private BroadcastReceiver auxiliarReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

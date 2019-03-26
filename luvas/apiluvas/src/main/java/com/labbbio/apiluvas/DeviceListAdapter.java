@@ -2,6 +2,7 @@ package com.labbbio.apiluvas;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ public class DeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
     private LayoutInflater mLayoutInflater;
     private ArrayList<BluetoothDevice> mDevices;
     private int  mViewResourceId;
+    String color = "#000000";
 
     public DeviceListAdapter(Context context, int tvResourceId, ArrayList<BluetoothDevice> devices){
         super(context, tvResourceId,devices);
@@ -35,13 +37,19 @@ public class DeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
             if (deviceName != null) {
                 deviceName.setText(device.getName());
+                deviceName.setTextColor(Color.parseColor(color));
             }
             if (deviceAdress != null) {
                 deviceAdress.setText(device.getAddress());
+                deviceAdress.setTextColor(Color.parseColor(color));
             }
         }
 
         return convertView;
+    }
+
+    public void setTextColor(String color){
+        this.color = color;
     }
 
 }

@@ -32,7 +32,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
             LocalBroadcastManager.getInstance(context).sendBroadcast(newIntent);
         }
 
-        else if(action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)){
+        else if(action.equals("Bond_Change")){
             BluetoothDevice mDevice = intent.getParcelableExtra("device");
             //3 cases:
             //case1: bonded already

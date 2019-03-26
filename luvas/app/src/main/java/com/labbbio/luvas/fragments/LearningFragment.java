@@ -1,12 +1,16 @@
 package com.labbbio.luvas.fragments;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,26 +26,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.labbbio.apiluvas.BluetoothService;
+import com.labbbio.apiluvas.DeviceListAdapter;
 import com.labbbio.luvas.LuvasApp;
+import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class LearningFragment extends Fragment {
 
     TabLayout tabs;
     ViewPager viewPager;
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+    FloatingActionButton fab2;
+
+    private static final int LEARNING_FRAGMENT = 2;
+
+
+    final String TAG = "Learning";
+
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+
+
 
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
         // Setting ViewPager for each Tabs
@@ -50,24 +63,40 @@ public class LearningFragment extends Fragment {
         // Set Tabs inside Toolbar
         tabs = view.findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-
-
+        fab2 = view.findViewById(R.id.fab2);
+        view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
         setTabFontSize();
+
+
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG,"Delete button");
+                callBtFragment();
+            }
+        });
 
         return view;
     }
 
-    private void setTabFontSize() {
+    private void callBtFragment() {
+        ((MainActivity) this.getActivity()).setLastFragment(LEARNING_FRAGMENT);
+        ((MainActivity) this.getActivity()).btFragmentStart();
+    }
 
+    private void setTabFontSize() {
+        String textColor = ((LuvasApp) this.getActivity().getApplication()).getTextColor();
         int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
         TextView textView = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
         textView.setText("PRÉ-LINGUÍSTICO");
         textView.setTextSize(size);
+        textView.setTextColor(Color.parseColor(textColor));
         tabs.getTabAt(0).setCustomView(textView);
 
         TextView textView2 = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
         textView2.setText("PÓS-LINGUÍSTICO");
         textView2.setTextSize(size);
+        textView2.setTextColor(Color.parseColor(textColor));
         tabs.getTabAt(1).setCustomView(textView2);
     }
 
@@ -113,6 +142,8 @@ public class LearningFragment extends Fragment {
             return mFragmentTitleList.get(position);
         }
     }
+
+
 
 
 }

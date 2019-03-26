@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,7 +44,7 @@ public class MessengerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_messenger, container, false);
         setRetainInstance(true);
 
-        this.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container).getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
 
         outputText = view.findViewById(R.id.outputText);
         inputText = view.findViewById(R.id.incommingMessage);
@@ -68,8 +69,9 @@ public class MessengerFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(TAG,"Button pressed");
                 byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-                ((LuvasApp) activity.getApplication()).getBluetoothService().write(bytes);
-                outputText.setText("");
+                ((LuvasApp) getActivity().getApplication()).getBluetoothService().write(bytes);
+                if(outputText.length()>0)
+                    outputText.getText().clear();
             }
         });
 
@@ -89,6 +91,7 @@ public class MessengerFragment extends Fragment {
         return view;
     }
 
+
     private BroadcastReceiver incommingMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -104,6 +107,10 @@ public class MessengerFragment extends Fragment {
         int size = ((LuvasApp) getActivity().getApplication()).getFontSize();
         outputText.setTextSize(size);
         inputText.setTextSize(size);
+
+        String color = (((LuvasApp) getActivity().getApplication()).getTextColor());
+        outputText.setTextColor(Color.parseColor(color));
+        inputText.setTextColor(Color.parseColor(color));
     }
 
     @Override

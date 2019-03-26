@@ -103,6 +103,7 @@ public class BluetoothService extends Service {
             }
 
             Log.i(TAG, "END mAcceptThread ");
+
         }
 
         public void cancel() {
@@ -128,6 +129,7 @@ public class BluetoothService extends Service {
             luvas = device;
             luvasUUID = uuid;
         }
+
 
         public void run(){
             BluetoothSocket tmp = null;
@@ -198,6 +200,8 @@ public class BluetoothService extends Service {
             luvasSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
+
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("CONNECTION_ESTABLISHED"));
 
             //dismiss the progressdialog when connection is established
             try{
