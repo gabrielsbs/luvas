@@ -62,6 +62,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Switch btSwitch;
     Switch fontSwitch;
 
+    private String luvasName = null;
+
+    public String getLuvasName() {
+        return luvasName;
+    }
+
+    public void setLuvasName(String luvasName) {
+        this.luvasName = luvasName;
+    }
+
     BluetoothReceiver broadcastReceiver = new BluetoothReceiver();
 
 
@@ -153,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         enableDisableBT();
                         if(currentFragment == HOME_FRAGMENT){
                             HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
                             fragment.setBtCard(false);
                         }
                     }
@@ -181,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,new IntentFilter("Bond_Change"));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_UUID));
         registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_BOND_STATE_CHANGED));
+        registerReceiver(auxiliarReceiver,new IntentFilter( BluetoothDevice.ACTION_ACL_DISCONNECTED));
         IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(auxiliarReceiver, BTIntent);
 
@@ -342,12 +354,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (lastFragment){
             case HOME_FRAGMENT:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                currentFragment = HOME_FRAGMENT;
                 break;
             case MESSENGER_FRAGMENT:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
+                currentFragment = MESSENGER_FRAGMENT;
                 break;
             case LEARNING_FRAGMENT:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+                currentFragment = LEARNING_FRAGMENT;
                 break;
             case BLUETOOTH_FRAGMENT:
                 currentFragment = BLUETOOTH_FRAGMENT;
@@ -480,8 +495,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             if(currentFragment == HOME_FRAGMENT){
                                 HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                                 fragment.setBtCard(false);
+                                luvasName = null;
+                                fragment.changeCardText();
+                            }
+                            else if(currentFragment == LEARNING_FRAGMENT){
+                                LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                                luvasName = null;
+                                fragment.changeCardText();
                             }
                         }
+
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         Log.d(TAG, "mBroadcastReceiver1: STATE TURNING OFF");
@@ -496,6 +519,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,mBluetoothAdapter.ERROR);
                 switch (state){
 
+                }
+            }
+
+            if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+                Log.d(TAG, "auxiliarReceiver: Device Disconnected");
+                if(currentFragment == HOME_FRAGMENT){
+                    Log.d(TAG, "HomeFragment");
+                    HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    luvasName = null;
+                    fragment.changeCardText();
+                }
+                else if(currentFragment == LEARNING_FRAGMENT){
+                    LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    luvasName = null;
+                    fragment.changeCardText();
                 }
             }
 

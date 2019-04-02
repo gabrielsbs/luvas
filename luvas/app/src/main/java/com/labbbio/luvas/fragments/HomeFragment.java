@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
         setCardsColor();
 
 
+        changeCardText();
 
         int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
         changeHomeTextSize(size);
@@ -88,8 +89,10 @@ public class HomeFragment extends Fragment {
         btCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("HomeFragment","Clicked");
                 String color = getCardColor(btCard);
                 String cardColor = ((LuvasApp) getActivity().getApplication()).getCardColor();
+                Log.d("HomeFragment",color + " == "+cardColor);
                 if(color.equals(cardColor)){
                     ((MainActivity) getActivity()).setBtSwitch();
                     Log.d("HomeFragment","Card change");
@@ -152,6 +155,23 @@ public class HomeFragment extends Fragment {
 
     }
 
+    public void changeCardText() {
+        LinearLayout linearLayout = (LinearLayout) deviceCard.getChildAt(0);
+        TextView txt = (TextView) linearLayout.getChildAt(1);
+        if(((MainActivity) getActivity()).getLuvasName() != null){
+            String color =((LuvasApp) this.getActivity().getApplication()).getHighlightCardColor();
+            deviceCard.setCardBackgroundColor(Color.parseColor(color));
+            String s = new String("Conectado à: " + ( (MainActivity) getActivity()).getLuvasName() );
+            txt.setText(s);
+        }
+        else{
+            String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
+            deviceCard.setCardBackgroundColor(Color.parseColor(color));
+            txt.setText("Conecter Bluetooth");
+        }
+
+    }
+
     public void setBtCard(boolean state){
         if (state)
             btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
@@ -172,6 +192,7 @@ public class HomeFragment extends Fragment {
     private String getCardColor(CardView card){
         int colorNumber = card.getCardBackgroundColor().getDefaultColor();
         String color = Integer.toHexString(colorNumber).substring(2);
+        color = color.toUpperCase();
         color = '#'+color;
         return color;
     }

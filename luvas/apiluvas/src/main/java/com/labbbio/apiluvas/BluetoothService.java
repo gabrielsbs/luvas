@@ -200,8 +200,10 @@ public class BluetoothService extends Service {
             luvasSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
-
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("CONNECTION_ESTABLISHED"));
+            String name = luvas.getName();
+            Intent connected_sucessful = new Intent("CONNECTION_ESTABLISHED");
+            connected_sucessful.putExtra("Device_Name",name);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(connected_sucessful);
 
             //dismiss the progressdialog when connection is established
             try{

@@ -75,6 +75,8 @@ public class BluetoohFragment extends Fragment{
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"Connected");
+            String name = intent.getExtras().getString("Device_Name");
+            ((MainActivity) getActivity()).setLuvasName(name);
             ((MainActivity) getActivity()).goLastFragment();
         }
     };
