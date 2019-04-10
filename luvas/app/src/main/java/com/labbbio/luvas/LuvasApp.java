@@ -7,11 +7,11 @@ import com.labbbio.apiluvas.BluetoothService;
 
 public class LuvasApp extends Application {
     private BluetoothService bluetoothService;
-    private String backgroundColor = "#FFFFFF";
-    private String cardColor = "#FFFFFF";
-    private String textColor = "#000000";
-    private String highlightCardColor = "#FF6F00";
-    private int fontSize = 15;
+    private String backgroundColor = "#1d1d1e";
+    private String cardColor = "#f5f021";
+    private String textColor = "#f5f021";
+    private String highlightCardColor = "#abad68";
+    private int fontSize = 40;
 
     public String getTextColor() {
         return textColor;

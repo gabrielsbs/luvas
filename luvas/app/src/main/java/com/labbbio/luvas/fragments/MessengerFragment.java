@@ -1,6 +1,5 @@
 package com.labbbio.luvas.fragments;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,13 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.R;
-import com.labbbio.luvas.TalkBackLuvas;
 
 import java.nio.charset.Charset;
 
@@ -51,9 +50,8 @@ public class MessengerFragment extends Fragment {
         btnSend = view.findViewById(R.id.buttonSend);
         fab = view.findViewById(R.id.fab);
 
-        setTextSize();
 
-        final Activity activity = this.getActivity();
+        setTextSize();
 
         if(temp != null){
             messages = temp;
@@ -63,6 +61,8 @@ public class MessengerFragment extends Fragment {
             messages.append("Mensagens Recebidas: \n");
         }
 
+        InputMethodManager imgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,16 +86,16 @@ public class MessengerFragment extends Fragment {
         });
 
         IntentFilter intentF = new IntentFilter("incommingMessage");
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incommingMessageReceiver,intentF);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incomingMessageReceiver,intentF);
 
         return view;
     }
 
 
-    private BroadcastReceiver incommingMessageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver incomingMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Incomming","Broadcast OK");
+            Log.d("Incoming","Broadcast OK");
             String text = intent.getStringExtra("message");
             messages.append(text + "\n");
 
@@ -116,8 +116,8 @@ public class MessengerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d("Incomming","Destroy");
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incommingMessageReceiver);
+        Log.d(TAG,"Destroy");
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incomingMessageReceiver);
         temp = messages;
     }
 

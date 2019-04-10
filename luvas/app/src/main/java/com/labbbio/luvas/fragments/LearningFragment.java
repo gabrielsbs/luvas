@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,8 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.labbbio.luvas.LuvasApp;
@@ -89,7 +85,7 @@ public class LearningFragment extends Fragment {
         else{
             String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
             buttonBT.setCardBackgroundColor(Color.parseColor(color));
-            txt.setText("Conecter Bluetooth");
+            txt.setText("Conectar Bluetooth");
         }
 
     }

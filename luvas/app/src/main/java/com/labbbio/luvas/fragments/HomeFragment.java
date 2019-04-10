@@ -24,7 +24,7 @@ import com.labbbio.luvas.R;
 
 public class HomeFragment extends Fragment {
 
-    CardView messengerCard, btCard, learningCard, accessCard, fontCard, deviceCard;
+    CardView messengerCard, learningCard, deviceCard;
     GridLayout gridLayout;
 
     private static final int HOME_FRAGMENT = 0;
@@ -38,9 +38,6 @@ public class HomeFragment extends Fragment {
         messengerCard = view.findViewById(R.id.messengerCard);
         learningCard = view.findViewById(R.id.exercizeCard);
         deviceCard = view.findViewById(R.id.deviceCard);
-        btCard = view.findViewById(R.id.btCard);
-        accessCard = view.findViewById(R.id.acessCard);
-        fontCard = view.findViewById(R.id.fontCard);
 
         view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
         setCardsColor();
@@ -50,13 +47,6 @@ public class HomeFragment extends Fragment {
 
         int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
         changeHomeTextSize(size);
-
-        if(((MainActivity)getActivity()).btIsEnabled()){
-            btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
-        }
-
-        if(((MainActivity) this.getActivity()).getFontState())
-            fontCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
 
         setClickEvent();
 
@@ -85,63 +75,6 @@ public class HomeFragment extends Fragment {
                 ((MainActivity)getActivity()).btFragmentStart();
             }
         });
-
-        btCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("HomeFragment","Clicked");
-                String color = getCardColor(btCard);
-                String cardColor = ((LuvasApp) getActivity().getApplication()).getCardColor();
-                Log.d("HomeFragment",color + " == "+cardColor);
-                if(color.equals(cardColor)){
-                    ((MainActivity) getActivity()).setBtSwitch();
-                    Log.d("HomeFragment","Card change");
-                    btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
-                }else{
-                    ((MainActivity) getActivity()).setBtSwitch();
-                    btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getCardColor()));
-                }
-
-            }
-        });
-
-        accessCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String color = getCardColor(accessCard);
-                String cardColor = ((LuvasApp) getActivity().getApplication()).getCardColor();
-                if(color.equals(cardColor)){
-                    ((MainActivity)getActivity()).accessibilityFragmentStart();
-                    accessCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
-
-                }else{
-                    ((MainActivity)getActivity()).accessibilityFragmentStart();
-                    accessCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getCardColor()));
-
-                }
-
-            }
-        });
-
-        fontCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String color = getCardColor(fontCard);
-                String cardColor = ((LuvasApp) getActivity().getApplication()).getCardColor();
-                if(color.equals(cardColor)){
-                    ((MainActivity)getActivity()).setFontSwitch();
-                    fontCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
-
-                }else{
-                    ((MainActivity)getActivity()).setFontSwitch();
-                    fontCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getCardColor()));
-
-                }
-
-            }
-        });
-
     }
 
     public void changeHomeTextSize(int size){
@@ -167,35 +100,18 @@ public class HomeFragment extends Fragment {
         else{
             String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
             deviceCard.setCardBackgroundColor(Color.parseColor(color));
-            txt.setText("Conecter Bluetooth");
+            txt.setText("Conectar Bluetooth");
         }
 
-    }
-
-    public void setBtCard(boolean state){
-        if (state)
-            btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getHighlightCardColor()));
-        else
-            btCard.setCardBackgroundColor(Color.parseColor(((LuvasApp) getActivity().getApplication()).getCardColor()));
     }
 
     private void setCardsColor() {
         String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
         messengerCard.setCardBackgroundColor(Color.parseColor(color));
         learningCard.setCardBackgroundColor(Color.parseColor(color));
-        btCard.setCardBackgroundColor(Color.parseColor(color));
         deviceCard.setCardBackgroundColor(Color.parseColor(color));
-        accessCard.setCardBackgroundColor(Color.parseColor(color));
-        fontCard.setCardBackgroundColor(Color.parseColor(color));
     }
 
-    private String getCardColor(CardView card){
-        int colorNumber = card.getCardBackgroundColor().getDefaultColor();
-        String color = Integer.toHexString(colorNumber).substring(2);
-        color = color.toUpperCase();
-        color = '#'+color;
-        return color;
-    }
 
 
 

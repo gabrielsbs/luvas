@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
         <item
+            android:id="@+id/nav_devices"
+            android:icon="@drawable/ic_devices"
+            android:title="Conectar Luvas" />
+        <item
             android:id="@+id/nav_messenger"
             android:icon="@drawable/ic_message"
             android:title="Mensagens" />
@@ -16,35 +20,6 @@
             android:id="@+id/nav_treinamento"
             android:icon="@drawable/ic_book"
             android:title="Exercícios" />
-
-        <item
-            android:id="@+id/nav_devices"
-            android:icon="@drawable/ic_devices"
-            android:title="Conectar Luvas" />
-
     </group>
 
-    <item android:title="Blueetooth">
-        <menu>
-            <item android:id="@+id/nav_bt"
-                android:title="Ligar Bluetooth"
-                android:icon="@drawable/ic_bluetooth"
-                app:actionLayout="@layout/action_switch">
-            </item>
-        </menu>
-
-    </item>
-
-    <item android:title="Acessibilidade">
-        <menu>
-            <item
-                android:id="@+id/nav_acessibilidade"
-                android:icon="@drawable/ic_accessibility_black_24dp"
-                android:title="Acessibilidade" />
-            <item android:id="@+id/nav_font"
-                android:icon="@drawable/ic_font_download_black_24dp"
-                app:actionLayout="@layout/action_switch"
-                android:title="Aumentar Fonte"/>
-        </menu>
-    </item>
 </menu>
