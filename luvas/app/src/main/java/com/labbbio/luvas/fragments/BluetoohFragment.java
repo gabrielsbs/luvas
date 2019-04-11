@@ -100,6 +100,8 @@ public class BluetoohFragment extends Fragment{
 
         lvNewDevices = view.findViewById(R.id.lvNewDevices);
         deviceListAdapter = new DeviceListAdapter(this.getActivity(), R.layout.device_adapter_view, btDevices);
+        deviceListAdapter.setTextColor(color);
+        lvNewDevices.setAdapter(deviceListAdapter);
         uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         if(temp != null){
             btDevices = temp;
@@ -154,7 +156,7 @@ public class BluetoohFragment extends Fragment{
 
 
     public void addDevice(BluetoothDevice device, int new_rssi){
-
+        Log.d(TAG,"Add Device");
         String address = device.getAddress();
         if (!btDevicesHashMap.containsKey(address)) {
             BTLE_Device btleDevice = new BTLE_Device(device);

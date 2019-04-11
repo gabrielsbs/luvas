@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         registerReceiver();
 
-        scanner_btle = new Scanner_BTLE(this,3000, -90);
+        scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (mBluetoothAdapter.isEnabled())
@@ -111,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDrawerClosed(View drawerView) {
                 // Code here will be triggered once the drawer closes. Will hide the keyboard
                 super.onDrawerClosed(drawerView);
-                InputMethodManager inputMethodManager = (InputMethodManager)
-                        getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             }
 
             @Override
