@@ -22,8 +22,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.labbbio.apiluvas.BluetoothService;
-import com.labbbio.apiluvas.DeviceListAdapter;
+import com.labbbio.bluetoothleapi.DeviceListAdapter;
+import com.labbbio.bluetoothleapi.BTLE_Device;
 import com.labbbio.luvas.LuvasApp;
+import com.labbbio.luvas.Scanner_BTLE;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
@@ -34,7 +36,7 @@ public class BluetoohFragment extends Fragment{
 
     private static final String TAG = "BluetoothFragment";
 
-    BluetoothDevice btDevice;
+    BTLE_Device btDevice;
 
     UUID uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -42,8 +44,8 @@ public class BluetoohFragment extends Fragment{
 
     BluetoothAdapter bluetoothAdapter;
 
-    public ArrayList<BluetoothDevice> btDevices = new ArrayList<>();
-    private ArrayList<BluetoothDevice> temp;
+    public ArrayList<BTLE_Device> btDevices;
+    private ArrayList<BTLE_Device> temp;
 
     public DeviceListAdapter deviceListAdapter;
 
@@ -51,7 +53,7 @@ public class BluetoohFragment extends Fragment{
     private TextView title;
     private String color;
     private int size;
-
+/*
     private BroadcastReceiver discoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -61,16 +63,12 @@ public class BluetoohFragment extends Fragment{
                     btDevices = intent.getExtras().getParcelableArrayList("arrayDevices");
 
                     Log.d(TAG,"onReceive: "+btDevices.get(0).getName());
-                    if (btDevices != null) {
-                        deviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, btDevices);
-                        deviceListAdapter.setTextColor(((LuvasApp)getActivity().getApplication()).getTextColor());
-                        lvNewDevices.setAdapter(deviceListAdapter);
-                    }
+
                 }
             }
         }
     };
-
+*/
     private BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -111,8 +109,8 @@ public class BluetoohFragment extends Fragment{
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothConnection = ((LuvasApp) this.getActivity().getApplication()).getBluetoothService();
 
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(discoveryReceiver,
-                new IntentFilter("Device_Added"));
+        //LocalBroadcastManager.getInstance(getActivity()).registerReceiver(discoveryReceiver,
+         //       new IntentFilter("Device_Added"));
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(connectionReceiver,
                 new IntentFilter("CONNECTION_ESTABLISHED"));
 
@@ -126,7 +124,7 @@ public class BluetoohFragment extends Fragment{
                 Log.d(TAG, "onItemClick: You Clicked on a device.");
                 String deviceName = btDevices.get(i).getName();
                 String deviceAddress = btDevices.get(i).getAddress();
-                btDevices.get(i).fetchUuidsWithSdp();
+                btDevices.get(i).getBluetoothDevice().fetchUuidsWithSdp();
 
                 Log.d(TAG, "onItemClick: deviceName = " + deviceName);
                 Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
@@ -135,7 +133,7 @@ public class BluetoohFragment extends Fragment{
                 //NOTE: Requires API 17+? I think this is JellyBean
                 if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
                     Log.d(TAG, "Trying to pair with " + deviceName);
-                    btDevices.get(i).createBond();
+                    btDevices.get(i).getBluetoothDevice().createBond();
 
                     btDevice = btDevices.get(i);
 
@@ -151,12 +149,28 @@ public class BluetoohFragment extends Fragment{
     }
 
 
+    public void addDevice(BluetoothDevice device, int new_rssi){
+
+        BTLE_Device btleDevice = new BTLE_Device(device);
+        btleDevice.setRSSI(new_rssi);
+        Log.d(TAG,"onReceive: "+btDevices.get(0).getName());
+        if (btDevices != null) {
+            deviceListAdapter = new DeviceListAdapter(this.getActivity(), R.layout.device_adapter_view, btDevices);
+            deviceListAdapter.setTextColor(((LuvasApp)getActivity().getApplication()).getTextColor());
+            lvNewDevices.setAdapter(deviceListAdapter);
+        }
+    }
+
+    public void stopScan(){
+
+    }
+
 
     public void startConnection(){
 
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
 
-        bluetoothConnection.startClient(btDevice, uuid);
+        bluetoothConnection.startClient(btDevice.getBluetoothDevice(), uuid);
     }
 
 
@@ -165,7 +179,7 @@ public class BluetoohFragment extends Fragment{
         super.onDestroy();
         Log.d(TAG,"onDestroy");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(connectionReceiver);
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
+       // LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
     }
 
     @Override
@@ -173,7 +187,7 @@ public class BluetoohFragment extends Fragment{
         super.onDestroyView();
         Log.d(TAG,"onDestroyView");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(connectionReceiver);
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
+        //LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
         temp = btDevices;
 
     }

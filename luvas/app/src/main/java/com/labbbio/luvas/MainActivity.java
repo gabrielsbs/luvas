@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -26,16 +27,17 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.labbbio.apiluvas.BluetoothReceiver;
 import com.labbbio.apiluvas.BluetoothService;
+import com.labbbio.bluetoothleapi.BTLE_Device;
 import com.labbbio.luvas.fragments.BluetoohFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,13 +54,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
 
+    private Scanner_BTLE scanner_btle;
+
 
     private static final String TAG = "MainActivity";
 
     BluetoothAdapter mBluetoothAdapter;
-
-    Switch btSwitch;
-    Switch fontSwitch;
+    public ArrayList<BTLE_Device> btDevices;
 
     private String luvasName = null;
 
@@ -79,12 +81,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "BLE not supported", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        btDevices = new ArrayList<>();
 
         registerReceiver();
 
+        scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (mBluetoothAdapter.isEnabled())
@@ -95,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
         setTheme(R.style.AppTheme_NoActionBar_Font);
+        changeMenuFontSize();
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, menu_lateral, toolbar, R.string.navigation_opener, R.string.navigation_closer) {
 
@@ -121,10 +130,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
 
-        if (mBluetoothAdapter.isEnabled()) {
-            btSwitch.setChecked(true);
-        }
-
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
@@ -146,10 +151,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
-    public int getLastFragment() {
-        return lastFragment;
-    }
 
     public void setLastFragment(int lastFragment) {
         this.lastFragment = lastFragment;
@@ -195,14 +196,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    //Checka se o bluetooth está ativo. Usado pelo HomeFragment
-    public boolean btIsEnabled() {
-        if (mBluetoothAdapter.isEnabled())
-            return true;
-        else
-            return false;
-    }
-
     // As funções seguintes iniciam um fragmento, HomeFragment precisa delas.
     public void homeFragmentStart() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
@@ -212,13 +205,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void btFragmentStart() {
         navigationView.setCheckedItem(R.id.nav_devices);
-        if (!mBluetoothAdapter.isEnabled()) {
-            btSwitch.toggle();
+        if(!mBluetoothAdapter.isEnabled())
+            enableDisableBT();
+        else{
+            btnDiscover();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+            currentFragment = BLUETOOTH_FRAGMENT;
         }
-        btnEnableDisable_Discoverable();
-        btnDiscover();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
-        currentFragment = BLUETOOTH_FRAGMENT;
     }
 
     public void messengerFragmentStart() {
@@ -246,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
                 break;
             case BLUETOOTH_FRAGMENT:
-                currentFragment = BLUETOOTH_FRAGMENT;
                 btFragmentStart();
                 break;
         }
@@ -275,8 +267,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    // Muda o tamanho da fonte do menu lateral
-    private void changeMenuFontSize(int size) {
+    private void changeMenuFontSize() {
+        int size = ((LuvasApp)getApplication()).getFontSize();
         Spannable span = new SpannableString("Home");
         span.setSpan(new AbsoluteSizeSpan(size, true), 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
@@ -291,18 +283,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().findItem(R.id.nav_devices).setTitle(span);
         span = new SpannableString("Bluetooth");
         span.setSpan(new AbsoluteSizeSpan(size, true), 0, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_bt).setTitle(span);
-        span = new SpannableString("Acessibilidade");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 14, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_acessibilidade).setTitle(span);
-        span = new SpannableString("Fonte");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 5, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_font).setTitle(span);
-        ((LuvasApp) this.getApplication()).setFontSize(size);
-    }
 
-    public void setBtSwitch() {
-        btSwitch.toggle();
     }
 
     public void enableDisableBT() {
@@ -329,8 +310,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d(TAG, "Request Received");
             if (resultCode == RESULT_CANCELED) {
                 Log.d(TAG, "Permission Denied");
-                //toggle back if permission to turn the bluetooth on is denied
-                btSwitch.toggle();
+            }
+            else if(resultCode == RESULT_OK){
+                btnDiscover();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+                currentFragment = BLUETOOTH_FRAGMENT;
             }
         }
     }
@@ -375,26 +359,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switch (state) {
                     case BluetoothAdapter.STATE_ON:
                         Log.d(TAG, "Creating bt connection");
-                        if (!btSwitch.isChecked()) {
-                            btSwitch.toggle();
-                        }
                         createBtConnection();
                         break;
                     case BluetoothAdapter.STATE_OFF:
                         Log.d(TAG, "onReceive: STATE OFF");
-                        if (btSwitch.isChecked()) {
-                            btSwitch.toggle();
-                            if (currentFragment == HOME_FRAGMENT) {
-                                HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                                luvasName = null;
-                                fragment.changeCardText();
-                            } else if (currentFragment == LEARNING_FRAGMENT) {
-                                LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                                luvasName = null;
-                                fragment.changeCardText();
-                            }
+                        if (currentFragment == HOME_FRAGMENT) {
+                            HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                            luvasName = null;
+                            fragment.changeCardText();
+                        } else if (currentFragment == LEARNING_FRAGMENT) {
+                            LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                            luvasName = null;
+                            fragment.changeCardText();
                         }
-
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         Log.d(TAG, "mBroadcastReceiver1: STATE TURNING OFF");
@@ -438,14 +415,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void btnEnableDisable_Discoverable() {
-        Log.d(TAG, "btnEnableDisable_Discoverable: Making device discoverable for 300 seconds.");
-
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
-
-    }
 
 
     public void btnDiscover() {
@@ -513,12 +482,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unregisterReceiver(auxiliarReceiver);
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "Resume");
-        registerReceiver();
-    }
 }
 
