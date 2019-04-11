@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         registerReceiver();
 
-        scanner_btle = new Scanner_BTLE(this,3000, -75);
+        scanner_btle = new Scanner_BTLE(this,3000, -90);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (mBluetoothAdapter.isEnabled())
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
         else{
-            btnDiscover();
+            startScan();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
             currentFragment = BLUETOOTH_FRAGMENT;
         }
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG, "Permission Denied");
             }
             else if(resultCode == RESULT_OK){
-                btnDiscover();
+                startScan();
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
                 currentFragment = BLUETOOTH_FRAGMENT;
             }
@@ -407,6 +407,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
+    public void startScan(){
+        Log.d(TAG,"Starting scan");
+
+        scanner_btle.start();
+
+    }
+
+    public void stopScan(){
+        Log.d(TAG,"Stopping scan");
+
+        scanner_btle.stop();
+
+    }
+
 
     public void createBtConnection() {
 
@@ -477,6 +491,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         Log.d(TAG, "OnDestroy");
         super.onDestroy();
+        stopScan();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);

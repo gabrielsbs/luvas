@@ -37,6 +37,19 @@ public class Scanner_BTLE {
         mBluetoothAdapter = bluetoothManager.getAdapter();
     }
 
+    public boolean isScanning() {
+        return mScanning;
+    }
+
+    public void start() {
+        scanLeDevice(true);
+    }
+
+    public void stop() {
+        scanLeDevice(false);
+    }
+
+
     private void scanLeDevice(final boolean enable) {
         if (enable && !mScanning) {
 
@@ -47,7 +60,7 @@ public class Scanner_BTLE {
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
 
-                    ((BluetoohFragment)mainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container)).stopScan();
+                    mainActivity.stopScan();
                 }
             }, scanPeriod);
 

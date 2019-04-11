@@ -30,6 +30,7 @@ import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class BluetoohFragment extends Fragment{
@@ -44,8 +45,10 @@ public class BluetoohFragment extends Fragment{
 
     BluetoothAdapter bluetoothAdapter;
 
-    public ArrayList<BTLE_Device> btDevices;
+    public ArrayList<BTLE_Device> btDevices = new ArrayList<>();
     private ArrayList<BTLE_Device> temp;
+
+    private HashMap<String, BTLE_Device> btDevicesHashMap = new HashMap<>();
 
     public DeviceListAdapter deviceListAdapter;
 
@@ -96,6 +99,7 @@ public class BluetoohFragment extends Fragment{
         title.setTextSize(size);
 
         lvNewDevices = view.findViewById(R.id.lvNewDevices);
+        deviceListAdapter = new DeviceListAdapter(this.getActivity(), R.layout.device_adapter_view, btDevices);
         uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         if(temp != null){
             btDevices = temp;
@@ -139,7 +143,7 @@ public class BluetoohFragment extends Fragment{
 
                     Log.d(TAG, "onItemClick: deviceName = " + btDevice.getName());
 
-                    startConnection();
+                   // startConnection();
 
                 }
             }
@@ -151,17 +155,19 @@ public class BluetoohFragment extends Fragment{
 
     public void addDevice(BluetoothDevice device, int new_rssi){
 
-        BTLE_Device btleDevice = new BTLE_Device(device);
-        btleDevice.setRSSI(new_rssi);
-        Log.d(TAG,"onReceive: "+btDevices.get(0).getName());
-        if (btDevices != null) {
-            deviceListAdapter = new DeviceListAdapter(this.getActivity(), R.layout.device_adapter_view, btDevices);
-            deviceListAdapter.setTextColor(((LuvasApp)getActivity().getApplication()).getTextColor());
-            lvNewDevices.setAdapter(deviceListAdapter);
-        }
-    }
+        String address = device.getAddress();
+        if (!btDevicesHashMap.containsKey(address)) {
+            BTLE_Device btleDevice = new BTLE_Device(device);
+            btleDevice.setRSSI(new_rssi);
 
-    public void stopScan(){
+            btDevicesHashMap.put(address, btleDevice);
+            btDevices.add(btleDevice);
+        }
+        else {
+            btDevicesHashMap.get(address).setRSSI(new_rssi);
+        }
+
+        deviceListAdapter.notifyDataSetChanged();
 
     }
 
@@ -169,7 +175,6 @@ public class BluetoohFragment extends Fragment{
     public void startConnection(){
 
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
-
         bluetoothConnection.startClient(btDevice.getBluetoothDevice(), uuid);
     }
 
@@ -179,6 +184,7 @@ public class BluetoohFragment extends Fragment{
         super.onDestroy();
         Log.d(TAG,"onDestroy");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(connectionReceiver);
+        ((MainActivity)getActivity()).stopScan();
        // LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
     }
 
