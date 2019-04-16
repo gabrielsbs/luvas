@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        if (mBluetoothAdapter.isEnabled())
-            createBtConnection();
 
         menu_lateral = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -355,20 +353,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, mBluetoothAdapter.ERROR);
                 switch (state) {
                     case BluetoothAdapter.STATE_ON:
-                        Log.d(TAG, "Creating bt connection");
-                        createBtConnection();
                         break;
                     case BluetoothAdapter.STATE_OFF:
-                        Log.d(TAG, "onReceive: STATE OFF");
-                        if (currentFragment == HOME_FRAGMENT) {
-                            HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                            luvasName = null;
-                            fragment.changeCardText();
-                        } else if (currentFragment == LEARNING_FRAGMENT) {
-                            LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                            luvasName = null;
-                            fragment.changeCardText();
-                        }
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         Log.d(TAG, "mBroadcastReceiver1: STATE TURNING OFF");

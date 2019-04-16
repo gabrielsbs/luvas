@@ -2,6 +2,7 @@ package com.labbbio.luvas.fragments;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,12 +23,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.labbbio.apiluvas.BluetoothService;
+import com.labbbio.bluetoothleapi.DeviceControlActivity;
 import com.labbbio.bluetoothleapi.DeviceListAdapter;
 import com.labbbio.bluetoothleapi.BTLE_Device;
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.Scanner_BTLE;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
+import com.labbbio.bluetoothleapi.BluetoothLEService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +39,10 @@ import java.util.UUID;
 public class BluetoohFragment extends Fragment{
 
     private static final String TAG = "BluetoothFragment";
+    public static final int REQUEST_ENABLE_BT = 1;
+    public static final int BTLE_SERVICES = 2;
 
-    BTLE_Device btDevice;
+    BluetoothDevice btDevice;
 
     UUID uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -141,11 +146,15 @@ public class BluetoohFragment extends Fragment{
                     Log.d(TAG, "Trying to pair with " + deviceName);
                     btDevices.get(i).getBluetoothDevice().createBond();
 
-                    btDevice = btDevices.get(i);
+                    btDevice = btDevices.get(i).getBluetoothDevice();
 
                     Log.d(TAG, "onItemClick: deviceName = " + btDevice.getName());
 
-                   // startConnection();
+
+
+                    startConnection();
+
+
 
                 }
             }
@@ -174,12 +183,26 @@ public class BluetoohFragment extends Fragment{
     }
 
 
-    public void startConnection(){
+    public void startConnection() {
 
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
-        bluetoothConnection.startClient(btDevice.getBluetoothDevice(), uuid);
+
+        String address = btDevice.getAddress();
+        String name = btDevice.getName();
+        Intent intent = new Intent(this.getActivity(), DeviceControlActivity.class);
+        intent.putExtra(DeviceControlActivity.EXTRA_NAME, name);
+        intent.putExtra(DeviceControlActivity.EXTRA_ADDRESS, address);
+        startActivityForResult(intent, BTLE_SERVICES);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==BTLE_SERVICES){
+            Log.d(TAG,"Finishing DeviceControl Activity");
+            this.getActivity().finishActivity(BTLE_SERVICES);
+        }
+    }
 
     @Override
     public void onDestroy() {
