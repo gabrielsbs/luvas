@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.labbbio.apiluvas.BluetoothReceiver;
 import com.labbbio.apiluvas.BluetoothService;
 import com.labbbio.bluetoothleapi.BTLE_Device;
+import com.labbbio.luvas.ble.Scanner_BTLE;
 import com.labbbio.luvas.fragments.BluetoohFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;

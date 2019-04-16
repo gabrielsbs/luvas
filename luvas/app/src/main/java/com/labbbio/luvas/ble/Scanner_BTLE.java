@@ -1,4 +1,4 @@
-package com.labbbio.luvas;
+package com.labbbio.luvas.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -7,7 +7,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import com.labbbio.luvas.fragments.BluetoohFragment;
+import com.labbbio.luvas.MainActivity;
+import com.labbbio.luvas.R;
+import com.labbbio.luvas.fragments.BluetoothFragment;
 
 
 public class Scanner_BTLE {
@@ -88,7 +90,7 @@ public class Scanner_BTLE {
                             public void run() {
                                 Log.d(TAG, "deviceName = " + device.getName());
                                 Log.d(TAG, "RSSI = " + rssi);
-                                ((BluetoohFragment)mainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container)).addDevice(device, new_rssi);
+                                ((BluetoothFragment)mainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container)).addDevice(device, new_rssi);
                             }
                         });
                     }

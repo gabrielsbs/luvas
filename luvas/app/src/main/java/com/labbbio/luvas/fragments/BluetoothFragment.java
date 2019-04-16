@@ -2,7 +2,11 @@ package com.labbbio.luvas.fragments;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,20 +27,40 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.labbbio.apiluvas.BluetoothService;
-import com.labbbio.bluetoothleapi.DeviceControlActivity;
-import com.labbbio.bluetoothleapi.DeviceListAdapter;
-import com.labbbio.bluetoothleapi.BTLE_Device;
 import com.labbbio.luvas.LuvasApp;
-import com.labbbio.luvas.Scanner_BTLE;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-import com.labbbio.bluetoothleapi.BluetoothLEService;
+import com.labbbio.luvas.ble.BluetoothLEService;
+import com.labbbio.luvas.ble.DeviceControlActivity;
+import com.labbbio.luvas.ble.BTLE_Device;
+import com.labbbio.luvas.ble.DeviceListAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class BluetoohFragment extends Fragment{
+public class BluetoothFragment extends Fragment{
+
+    public final static String ACTION_GATT_CONNECTED =
+            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+    public final static String ACTION_GATT_DISCONNECTED =
+            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED =
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_DATA_AVAILABLE =
+            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
+    public final static String EXTRA_DATA =
+            "com.example.bluetooth.le.EXTRA_DATA";
+    public final static UUID UUID_HEART_RATE_MEASUREMENT =
+            UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+
+    private static final int STATE_DISCONNECTED = 0;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
+    private int mConnectionState = STATE_DISCONNECTED;
+
+    private int connectionState = STATE_DISCONNECTED;
+
 
     private static final String TAG = "BluetoothFragment";
     public static final int REQUEST_ENABLE_BT = 1;
@@ -47,8 +71,9 @@ public class BluetoohFragment extends Fragment{
     UUID uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     BluetoothService bluetoothConnection;
-
     BluetoothAdapter bluetoothAdapter;
+    private String mBluetoothDeviceAddress;
+    private BluetoothGatt mBluetoothGatt;
 
     public ArrayList<BTLE_Device> btDevices = new ArrayList<>();
     private ArrayList<BTLE_Device> temp;
@@ -61,22 +86,48 @@ public class BluetoohFragment extends Fragment{
     private TextView title;
     private String color;
     private int size;
-/*
-    private BroadcastReceiver discoveryReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equals("Device_Added")){
-                if (intent != null && intent.getExtras() != null) {
-                    btDevices = intent.getExtras().getParcelableArrayList("arrayDevices");
 
-                    Log.d(TAG,"onReceive: "+btDevices.get(0).getName());
 
-                }
+
+    private void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
+        ((MainActivity) this.getActivity()).sendBroadcast(intent);
+    }
+
+    private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
+        final Intent intent = new Intent(action);
+
+        // This is special handling for the Heart Rate Measurement profile. Data
+        // parsing is carried out as per profile specifications.
+        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+            int flag = characteristic.getProperties();
+            int format = -1;
+
+            if ((flag & 0x01) != 0) {
+                format = BluetoothGattCharacteristic.FORMAT_UINT16;
+                Log.d(TAG, "Heart rate format UINT16.");
+            } else {
+                format = BluetoothGattCharacteristic.FORMAT_UINT8;
+                Log.d(TAG, "Heart rate format UINT8.");
+            }
+
+            final int heartRate = characteristic.getIntValue(format, 1);
+            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
+
+        } else {
+            // For all other profiles, writes the data formatted in HEX.
+            final byte[] data = characteristic.getValue();
+            if (data != null && data.length > 0) {
+                final StringBuilder stringBuilder = new StringBuilder(data.length);
+                for (byte byteChar : data)
+                    stringBuilder.append(String.format("%02X ", byteChar));
+                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
             }
         }
-    };
-*/
+        ((MainActivity) this.getActivity()).sendBroadcast(intent);
+    }
+
     private BroadcastReceiver connectionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -183,16 +234,41 @@ public class BluetoohFragment extends Fragment{
     }
 
 
-    public void startConnection() {
-
-        Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
+    public boolean startConnection() {
 
         String address = btDevice.getAddress();
-        String name = btDevice.getName();
-        Intent intent = new Intent(this.getActivity(), DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRA_NAME, name);
-        intent.putExtra(DeviceControlActivity.EXTRA_ADDRESS, address);
-        startActivityForResult(intent, BTLE_SERVICES);
+        Log.d(TAG, "Trying to connect");
+        if (bluetoothAdapter == null || address == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
+            return false;
+        }
+
+        // Previously connected device.  Try to reconnect.
+        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
+            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+
+            if (mBluetoothGatt.connect()) {
+                mConnectionState = STATE_CONNECTING;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
+
+        if (device == null) {
+            Log.w(TAG, "Device not found.  Unable to connect.");
+            return false;
+        }
+
+        mBluetoothGatt = device.connectGatt(this.getContext(), true, mGattCallback);
+        Log.d(TAG, "Trying to create a new connection.");
+        mBluetoothDeviceAddress = address;
+        mConnectionState = STATE_CONNECTING;
+
+        return true;
     }
 
     @Override
@@ -203,6 +279,43 @@ public class BluetoohFragment extends Fragment{
             this.getActivity().finishActivity(BTLE_SERVICES);
         }
     }
+
+    public final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            String intentAction;
+            if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+                connectionState = STATE_CONNECTED;
+                Log.i(TAG, "Connected to GATT server.");
+                mBluetoothGatt.discoverServices();
+
+            } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+                connectionState = STATE_DISCONNECTED;
+                Log.i(TAG, "Disconnected from GATT server.");
+            }else if(status != BluetoothGatt.GATT_SUCCESS){
+                mBluetoothGatt.disconnect();
+            }
+        }
+
+        @Override
+        // New services discovered
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+            } else {
+                Log.w(TAG, "onServicesDiscovered received: " + status);
+            }
+        }
+
+        @Override
+        // Result of a characteristic read operation
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            }
+        }
+    };
+
 
     @Override
     public void onDestroy() {
