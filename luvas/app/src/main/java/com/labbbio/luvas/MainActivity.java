@@ -3,13 +3,17 @@ package com.labbbio.luvas;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,14 +35,17 @@ import android.widget.Toast;
 
 import com.labbbio.apiluvas.BluetoothReceiver;
 import com.labbbio.apiluvas.BluetoothService;
-import com.labbbio.bluetoothleapi.BTLE_Device;
+import com.labbbio.luvas.ble.BluetoothLeService;
+import com.labbbio.luvas.ble.SampleGattAttributes;
 import com.labbbio.luvas.ble.Scanner_BTLE;
-import com.labbbio.luvas.fragments.BluetoohFragment;
+import com.labbbio.luvas.ble.BTLE_Device;
+import com.labbbio.luvas.fragments.BluetoothFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -64,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ArrayList<BTLE_Device> btDevices;
 
     private String luvasName = null;
-
+    private String mDeviceAddress;
     public String getLuvasName() {
         return luvasName;
     }
@@ -73,7 +80,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.luvasName = luvasName;
     }
 
+    public final static String EXTRA_DATA =
+            "com.example.bluetooth.le.EXTRA_DATA";
+
     BluetoothReceiver broadcastReceiver = new BluetoothReceiver();
+
+    private BluetoothLeService mBluetoothLeService;
+    private boolean mConnected = false;
+    private BluetoothGattCharacteristic characteristicTX;
+    private BluetoothGattCharacteristic characteristicRX;
+
+
+    public final static UUID HM_RX_TX =
+            UUID.fromString(SampleGattAttributes.HM_RX_TX);
+
+    private final String LIST_NAME = "NAME";
+    private final String LIST_UUID = "UUID";
+
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+                finish();
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+            mBluetoothLeService.connect(mDeviceAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
+
+    // Handles various events fired by the Service.
+    // ACTION_GATT_CONNECTED: connected to a GATT server.
+    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
+    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
+    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
+    //                        or notification operations.
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // Show all the supported services and characteristics on the user interface.
+              //  displayGattServices(mBluetoothLeService.getSupportedGattServices());
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                //displayData(intent.getStringExtra(mBluetoothLeService.EXTRA_DATA));
+
+                String incomingMessage = intent.getStringExtra(EXTRA_DATA);
+                Log.d(TAG, "InputStream: " + incomingMessage);
+
+                Intent incomingMessageIntent = new Intent("incommingMessage");
+                incomingMessageIntent.putExtra("message",incomingMessage);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
+
+            }
+        }
+    };
 
 
     @Override
@@ -124,6 +197,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         menu_lateral.addDrawerListener(toggle);
         toggle.syncState();
+
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
 
         if (savedInstanceState == null) {
@@ -205,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             enableDisableBT();
         else{
             startScan();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoothFragment()).commit();
             currentFragment = BLUETOOTH_FRAGMENT;
         }
     }
@@ -309,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             else if(resultCode == RESULT_OK){
                 startScan();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoohFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoothFragment()).commit();
                 currentFragment = BLUETOOTH_FRAGMENT;
             }
         }
@@ -405,43 +482,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
-    public void createBtConnection() {
-
-        BluetoothService mBluetoothConnection = new BluetoothService(this);
-        ((LuvasApp) this.getApplication()).setBluetoothService(mBluetoothConnection);
-
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 
-
-
-    public void btnDiscover() {
-        Log.d(TAG, "btnDiscover: Looking for unpaired devices.");
-
-        if (mBluetoothAdapter.isDiscovering()) {
-            mBluetoothAdapter.cancelDiscovery();
-            Log.d(TAG, "btnDiscover: Canceling discovery.");
-
-            //check BT permissions in manifest
-            checkBTPermissions();
-
-
-            mBluetoothAdapter.startDiscovery();
-            IntentFilter it = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(auxiliarReceiver, it);
-        }
-        if (!mBluetoothAdapter.isDiscovering()) {
-
-            //check BT permissions in manifest
-
-            checkBTPermissions();
-
-            mBluetoothAdapter.startDiscovery();
-            IntentFilter it = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(auxiliarReceiver, it);
-
-        }
-    }
 
     /**
      * This method is required for all devices running API23+
@@ -476,6 +525,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "OnDestroy");
         super.onDestroy();
         stopScan();
+        unbindService(mServiceConnection);
+        mBluetoothLeService = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
