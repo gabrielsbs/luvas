@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -38,7 +39,9 @@ import com.labbbio.luvas.ble.BluetoothLeService;
 import com.labbbio.luvas.ble.SampleGattAttributes;
 import com.labbbio.luvas.ble.Scanner_BTLE;
 import com.labbbio.luvas.ble.BTLE_Device;
+import com.labbbio.luvas.exercisedb.ExerciseDBHelper;
 import com.labbbio.luvas.fragments.BluetoothFragment;
+import com.labbbio.luvas.fragments.ExerciseFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private static final String TAG = "MainActivity";
+
+    private SQLiteDatabase database;
 
     BluetoothAdapter mBluetoothAdapter;
     public ArrayList<BTLE_Device> btDevices;
@@ -166,6 +171,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        ExerciseDBHelper dbHelper = new ExerciseDBHelper(this);
+        database = dbHelper.getWritableDatabase();
 
 
         menu_lateral = findViewById(R.id.drawer_layout);
@@ -293,6 +301,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
         navigationView.setCheckedItem(R.id.nav_treinamento);
         currentFragment = LEARNING_FRAGMENT;
+    }
+
+    public void exerciseFragmentStart(String tableName){
+        Bundle bundle = new Bundle();
+        bundle.putString("tableName",tableName);
+        ExerciseFragment f =new ExerciseFragment();
+        f.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,f).commit();
     }
 
     //Reinicia o fragmento atual para atualizar a mudança da fonte
@@ -476,6 +492,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         scanner_btle.stop();
 
+    }
+
+    public SQLiteDatabase getDatabase(){
+        return this.database;
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

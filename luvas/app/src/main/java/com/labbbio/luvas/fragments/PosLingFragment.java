@@ -1,58 +1,87 @@
 package com.labbbio.luvas.fragments;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
+import com.labbbio.luvas.exercisedb.ExerciseAdapter;
+import com.labbbio.luvas.exercisedb.ExerciseDBHelper;
+import com.labbbio.luvas.exercisedb.ExerciseItem;
 
 import java.util.ArrayList;
 
 public class PosLingFragment extends Fragment {
 
+    private SQLiteDatabase database;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private ExerciseAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ArrayList<ExerciseItem> exerciseItems = new ArrayList<>();
+
+    private int lastExercise;
+
+    String TAG = "POSLINGFRAGMENT";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ArrayList<ExerciseItem> exerciseItems = new ArrayList<>();
+
         View view = inflater.inflate(R.layout.fragment_pos_ling, container, false);
 
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        ExerciseDBHelper dbHelper = new ExerciseDBHelper(this.getContext());
+        database = ((MainActivity)this.getActivity()).getDatabase();
+
+        setRecyclerView(view);
+        createExerciseList();
+
+        return view;
 
 
+    }
+
+
+    public void createExerciseList(){
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+    }
+
+
+    public void setRecyclerView(View view){
 
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
@@ -62,8 +91,43 @@ public class PosLingFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-        return view;
+        mAdapter.setOnItemClickListener(new ExerciseAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+               // changeItem(position, "Clicked");
+                callExerciseFragment();
+                updateLastExercise();
+                getLastExercise();
 
+            }
+        });
+    }
 
+    public int getLastExercise(){
+        int x = 0;
+        String[] column = new String[]{ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING};
+        Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME,column,null,null,null,null,null);
+        int ex = cursor.getColumnIndex(ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING);
+        if(cursor.moveToNext()){
+            x = cursor.getInt(ex);
+            Log.d(TAG,"LastExercise = "+x);
+
+        }
+        return x;
+    }
+
+    public void updateLastExercise(){
+        ContentValues cv = new ContentValues();
+        lastExercise = lastExercise+1;
+        String command = "UPDATE " +
+                ExerciseItem.LastExerciseEntry.TABLE_NAME +
+                " SET " + ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING +
+                " = "+ lastExercise;
+
+        database.execSQL(command);
+    }
+
+    public void callExerciseFragment(){
+        ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME);
     }
 }
