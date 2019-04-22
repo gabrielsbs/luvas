@@ -69,7 +69,7 @@ public class MessengerFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(TAG,"Button pressed");
                 byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-                ((LuvasApp) getActivity().getApplication()).getBluetoothService().write(bytes);
+               // ((LuvasApp) getActivity().getApplication()).getBluetoothService().write(bytes);
                 if(outputText.length()>0)
                     outputText.getText().clear();
             }

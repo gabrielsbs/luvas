@@ -3,10 +3,8 @@ package com.labbbio.luvas;
 import android.app.Application;
 import android.support.design.widget.TabLayout;
 
-import com.labbbio.apiluvas.BluetoothService;
 
 public class LuvasApp extends Application {
-    private BluetoothService bluetoothService;
     private String backgroundColor = "#1d1d1e";
     private String cardColor = "#f5f021";
     private String textColor = "#f5f021";
@@ -26,13 +24,6 @@ public class LuvasApp extends Application {
         super.onCreate();
     }
 
-    public BluetoothService getBluetoothService() {
-        return bluetoothService;
-    }
-
-    public void setBluetoothService(BluetoothService mBluetoothConnectedThread) {
-        this.bluetoothService = mBluetoothConnectedThread;
-    }
 
     public int getFontSize(){
         return fontSize;

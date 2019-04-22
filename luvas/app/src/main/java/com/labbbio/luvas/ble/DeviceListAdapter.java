@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.labbbio.luvas.R;
+
 import java.util.ArrayList;
 
 
@@ -31,8 +33,8 @@ public class DeviceListAdapter extends ArrayAdapter<BTLE_Device> {
         BTLE_Device device = mDevices.get(position);
 
         if (device != null) {
-            TextView deviceName = (TextView) convertView.findViewById(com.labbbio.bluetoothleapi.R.id.tvDeviceName);
-            TextView deviceAdress = (TextView) convertView.findViewById(com.labbbio.bluetoothleapi.R.id.tvDeviceAddress);
+            TextView deviceName = (TextView) convertView.findViewById(R.id.tvDeviceName);
+            TextView deviceAdress = (TextView) convertView.findViewById(R.id.tvDeviceAddress);
 
             if (deviceName != null) {
                 deviceName.setText(device.getName());

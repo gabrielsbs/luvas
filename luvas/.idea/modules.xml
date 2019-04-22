@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/apiluvas/apiluvas.iml" filepath="$PROJECT_DIR$/apiluvas/apiluvas.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bluetoothleapi/bluetoothleapi.iml" filepath="$PROJECT_DIR$/bluetoothleapi/bluetoothleapi.iml" />
       <module fileurl="file://$PROJECT_DIR$/luvas.iml" filepath="$PROJECT_DIR$/luvas.iml" />
     </modules>
   </component>

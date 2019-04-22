@@ -3,9 +3,6 @@ package com.labbbio.luvas.fragments;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +22,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.labbbio.apiluvas.BluetoothService;
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
@@ -67,7 +63,6 @@ public class BluetoothFragment extends Fragment{
 
     UUID uuid =  UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    BluetoothService bluetoothConnection;
     BluetoothAdapter bluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
@@ -127,7 +122,6 @@ public class BluetoothFragment extends Fragment{
 
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        bluetoothConnection = ((LuvasApp) this.getActivity().getApplication()).getBluetoothService();
 
         //LocalBroadcastManager.getInstance(getActivity()).registerReceiver(discoveryReceiver,
          //       new IntentFilter("Device_Added"));

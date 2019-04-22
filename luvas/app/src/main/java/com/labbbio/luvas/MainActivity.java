@@ -33,8 +33,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import com.labbbio.apiluvas.BluetoothReceiver;
-import com.labbbio.apiluvas.BluetoothService;
+
 import com.labbbio.luvas.ble.BluetoothLeService;
 import com.labbbio.luvas.ble.SampleGattAttributes;
 import com.labbbio.luvas.ble.Scanner_BTLE;
@@ -83,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
-    BluetoothReceiver broadcastReceiver = new BluetoothReceiver();
 
     private BluetoothLeService mBluetoothLeService;
     private boolean mConnected = false;
@@ -214,8 +212,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void registerReceiver() {
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("Device_Found"));
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("Bond_Change"));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_UUID));
         registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
@@ -527,7 +523,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         stopScan();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
     }

@@ -1,1 +1,1 @@
-include ':app', ':apiluvas', ':bluetoothleapi'
+include ':app'
