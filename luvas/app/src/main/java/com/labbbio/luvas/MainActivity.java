@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MESSENGER_FRAGMENT = 1;
     private static final int LEARNING_FRAGMENT = 2;
     private static final int BLUETOOTH_FRAGMENT = 3;
+    private static final int EXERCISE_FRAGMENT = 4;
 
 
     private int currentFragment = HOME_FRAGMENT;
@@ -264,8 +265,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (menu_lateral.isDrawerOpen(GravityCompat.START)) {
             menu_lateral.closeDrawer(GravityCompat.START);
         } else {
-            if (currentFragment != HOME_FRAGMENT)
+            if (currentFragment != HOME_FRAGMENT && currentFragment != EXERCISE_FRAGMENT)
                 homeFragmentStart();
+            else if(currentFragment == EXERCISE_FRAGMENT)
+                learningFragmentStart();
             else
                 super.onBackPressed();
         }
@@ -303,13 +306,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = LEARNING_FRAGMENT;
     }
 
-    public void exerciseFragmentStart(String tableName){
+    public void exerciseFragmentStart(String tableName, int questionNumber){
         Bundle bundle = new Bundle();
         bundle.putString("tableName",tableName);
+        bundle.putInt("questionNumber",questionNumber);
         ExerciseFragment f =new ExerciseFragment();
         f.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,f).commit();
+        currentFragment = EXERCISE_FRAGMENT;
     }
+
 
     //Reinicia o fragmento atual para atualizar a mudança da fonte
     public void refreshFragment() {
@@ -545,6 +551,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mBluetoothLeService = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
 }

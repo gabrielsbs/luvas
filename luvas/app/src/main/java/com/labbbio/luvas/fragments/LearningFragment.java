@@ -56,9 +56,6 @@ public class LearningFragment extends Fragment {
         view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
         setTabFontSize();
 
-
-
-
         changeCardText();
 
         buttonBT.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +93,7 @@ public class LearningFragment extends Fragment {
     }
 
     private void setTabFontSize() {
-        int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
+       /* int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
         LinearLayout ln =((LinearLayout) tabs.getChildAt(0));
         int i = ln.getChildCount();
         FrameLayout.LayoutParams layoutParams;
@@ -104,7 +101,7 @@ public class LearningFragment extends Fragment {
         if(size == 15)
             layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,50);
         else
-            layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,100);
+            layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,110);
         ln.setLayoutParams(layoutParams);
 
         String textColor = ((LuvasApp) this.getActivity().getApplication()).getTextColor();
@@ -119,7 +116,13 @@ public class LearningFragment extends Fragment {
         textView2.setText("PÓS-LINGUÍSTICO");
         textView2.setTextSize(size);
         textView2.setTextColor(Color.parseColor(textColor));
-        tabs.getTabAt(1).setCustomView(textView2);
+        tabs.getTabAt(1).setCustomView(textView2);*/
+        String[] tabNames = {"Pré-Linguístico", "Pós-Linguistíco"};
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            tabs.getTabAt(i).setCustomView(R.layout.custom_tab);
+            TextView tab_name = (TextView) tabs.getTabAt(i).getCustomView().findViewById(R.id.tab);
+            tab_name.setText("" + tabNames[i]);
+        }
 
         String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
         buttonBT.setCardBackgroundColor(Color.parseColor(color));

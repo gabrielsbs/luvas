@@ -45,6 +45,7 @@ public class PosLingFragment extends Fragment {
 
         setRecyclerView(view);
         createExerciseList();
+        addExercisestoDB();
 
         return view;
 
@@ -53,31 +54,24 @@ public class PosLingFragment extends Fragment {
 
 
     public void createExerciseList(){
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
-        exerciseItems.add(new ExerciseItem(1,"Digite a letra A","A"));
+        for(int i = 1; i<=26; i++){
+            String answer = Character.toString((char) (i+64));
+            String question = "Digite a letra \""+answer+"\"";
+            exerciseItems.add(new ExerciseItem(i,question,answer));
+        }
+    }
+
+    public void addExercisestoDB(){
+        for(ExerciseItem item: exerciseItems){
+            int qNumber = item.getExerciseNumber();
+            String question = item.getQuestion();
+            String answer = item.getAnswer();
+            ContentValues cv = new ContentValues();
+            cv.put(ExerciseItem.ExerciseEntry.COLUMN_NUMBER,qNumber);
+            cv.put(ExerciseItem.ExerciseEntry.COLUMN_QUESTION,question);
+            cv.put(ExerciseItem.ExerciseEntry.COLUMN_ANSWER,answer);
+            database.insert(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME,null,cv);
+        }
     }
 
 
@@ -95,7 +89,7 @@ public class PosLingFragment extends Fragment {
             @Override
             public void onItemClick(int position) {
                // changeItem(position, "Clicked");
-                callExerciseFragment();
+                callExerciseFragment(position+1);
                 updateLastExercise();
                 getLastExercise();
 
@@ -127,7 +121,7 @@ public class PosLingFragment extends Fragment {
         database.execSQL(command);
     }
 
-    public void callExerciseFragment(){
-        ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME);
+    public void callExerciseFragment(int questionNumber){
+        ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME, questionNumber);
     }
 }

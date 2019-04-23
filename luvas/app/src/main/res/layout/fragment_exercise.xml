@@ -2,28 +2,44 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#000000">
     <TextView
         android:id="@+id/textview_question"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_margin="8dp"
-        android:text="0"
-        android:textSize="50sp" />
+        android:layout_margin="20dp"
+        android:text="Pergunta"
+        android:textSize="70sp"
+        android:textColor="@color/yellow"/>
 
-    <EditText
-        android:id="@+id/answer"
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textview_question"/>
+        android:layout_below="@+id/textview_question"
+        android:orientation="horizontal">
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/answer"
+            android:textColor="@color/yellow"
+            app:backgroundTint="@color/yellow"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"/>
+        <ImageButton
+            android:id="@+id/button_send"
+            android:background="@color/yellow"
+            android:layout_width="50dp"
+            android:layout_margin="5dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_send_"
+            tools:ignore="VectorDrawableCompat"/>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/button_send"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/answer"
-        android:text="-" />
+
 
 </RelativeLayout>
