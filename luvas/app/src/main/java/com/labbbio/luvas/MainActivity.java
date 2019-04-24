@@ -590,7 +590,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         stopScan();
         unbindService(mServiceConnection);
-      //  mBluetoothLeService = null;
+        mBluetoothLeService.disconnect();
+        mBluetoothLeService = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(mGattUpdateReceiver);
