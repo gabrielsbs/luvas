@@ -4,6 +4,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -48,6 +49,8 @@ import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -62,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int BLUETOOTH_FRAGMENT = 3;
     private static final int EXERCISE_FRAGMENT = 4;
 
+    public final static UUID UUID_HM_RX_TX =
+            UUID.fromString(SampleGattAttributes.HM_RX_TX);
 
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
@@ -100,9 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private BluetoothGattCharacteristic characteristicRX;
 
 
-    public final static UUID HM_RX_TX =
-            UUID.fromString(SampleGattAttributes.HM_RX_TX);
-
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
@@ -138,14 +140,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                Log.d(TAG,"GATT Connected");
                 mConnected = true;
+
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
-              //  displayGattServices(mBluetoothLeService.getSupportedGattServices());
+                Log.d(TAG,"Services discovered");
+                displayGattServices(mBluetoothLeService.getSupportedGattServices());
+                mBluetoothLeService.readCharacteristic(characteristicRX);
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //displayData(intent.getStringExtra(mBluetoothLeService.EXTRA_DATA));
+                Log.d(TAG,"Data Available");
 
                 String incomingMessage = intent.getStringExtra(EXTRA_DATA);
                 Log.d(TAG, "InputStream: " + incomingMessage);
@@ -488,6 +495,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
     };
+
+    private void displayGattServices(List<BluetoothGattService> gattServices) {
+        if (gattServices == null) return;
+        String uuid = null;
+        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
+
+
+        // Loops through available GATT Services.
+        for (BluetoothGattService gattService : gattServices) {
+            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            String unknownServiceString = "Unknown Service";
+            uuid = gattService.getUuid().toString();
+            currentServiceData.put(
+                    LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+
+            // If the service exists for HM 10 Serial, say so.
+            currentServiceData.put(LIST_UUID, uuid);
+            gattServiceData.add(currentServiceData);
+
+            // get characteristic when UUID matches RX/TX UUID
+            characteristicTX = gattService.getCharacteristic(BluetoothLeService.UUID_HM_RX_TX);
+            characteristicRX = gattService.getCharacteristic(BluetoothLeService.UUID_HM_RX_TX);
+        }
+        Log.d(TAG,characteristicRX.getUuid().toString());
+    }
 
     public void startScan(){
         Log.d(TAG,"Starting scan");
