@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      //   mBluetoothLeService = new BluetoothLeService();
 
 
+        checkBTPermissions();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         btDevices = new ArrayList<>();
@@ -300,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
         else{
-            checkBTPermissions();
             startScan();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoothFragment()).commit();
             currentFragment = BLUETOOTH_FRAGMENT;
