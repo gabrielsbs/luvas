@@ -30,6 +30,11 @@ public class LearningFragment extends Fragment {
     TabLayout tabs;
     ViewPager viewPager;
     CardView buttonBT;
+    Adapter adapter;
+
+    private int posLingLastExercise;
+    private int preLingLastExercise;
+
 
     private static final int LEARNING_FRAGMENT = 2;
 
@@ -44,8 +49,9 @@ public class LearningFragment extends Fragment {
 
 
 
-
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
+
+
         // Setting ViewPager for each Tabs
         viewPager = view.findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -56,67 +62,74 @@ public class LearningFragment extends Fragment {
         view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
         setTabFontSize();
 
-        changeCardText();
+        String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
+        buttonBT.setCardBackgroundColor(Color.parseColor(color));
 
         buttonBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG,"Button BT");
-                callBtFragment();
+                Log.d(TAG,"Começar");
+                startExercise();
+            }
+        });
+
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                Log.d(TAG,"Page: "+i);
+                if (i ==0){
+                    if(preLingLastExercise>0){
+                        changeCardText(new String("Voltar de onde parei"));
+                    }
+                    else{
+                        changeCardText(new String("Começar"));
+                    }
+
+                }else if(i==1){
+                    posLingLastExercise = ((PosLingFragment)adapter.mFragmentList.get(1)).getLastExercise();
+                    Log.d(TAG,"LastExercise: "+posLingLastExercise);
+                    if(posLingLastExercise>0){
+                        changeCardText(new String("Voltar de onde parei"));
+                    }
+                    else{
+                        changeCardText(new String("Começar"));
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
             }
         });
 
         return view;
     }
 
+    private void startExercise() {
+        if(viewPager.getCurrentItem()==0){
 
-    public void changeCardText() {
-        LinearLayout linearLayout = (LinearLayout) buttonBT.getChildAt(0);
-        TextView txt = (TextView) linearLayout.getChildAt(1);
-        if(((MainActivity) getActivity()).getLuvasName() != null){
-            String color =((LuvasApp) this.getActivity().getApplication()).getHighlightCardColor();
-            buttonBT.setCardBackgroundColor(Color.parseColor(color));
-            String s = new String("Conectado à: " + ( (MainActivity) getActivity()).getLuvasName() );
-            txt.setText(s);
         }
         else{
-            String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
-            buttonBT.setCardBackgroundColor(Color.parseColor(color));
-            txt.setText("Conectar Bluetooth");
+            ((PosLingFragment)adapter.mFragmentList.get(1)).callExerciseFragment(posLingLastExercise+1);
         }
-
     }
 
-    private void callBtFragment() {
-        ((MainActivity) this.getActivity()).setLastFragment(LEARNING_FRAGMENT);
-        ((MainActivity) this.getActivity()).btFragmentStart();
+    public void changeCardText(String s) {
+        LinearLayout linearLayout = (LinearLayout) buttonBT.getChildAt(0);
+        TextView txt = (TextView) linearLayout.getChildAt(0);
+        txt.setText(s);
     }
 
     private void setTabFontSize() {
-       /* int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
-        LinearLayout ln =((LinearLayout) tabs.getChildAt(0));
-        int i = ln.getChildCount();
-        FrameLayout.LayoutParams layoutParams;
-        Log.d(TAG,"childs: "+i);
-        if(size == 15)
-            layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,50);
-        else
-            layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,110);
-        ln.setLayoutParams(layoutParams);
-
-        String textColor = ((LuvasApp) this.getActivity().getApplication()).getTextColor();
-
-        TextView textView = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
-        textView.setText("PRÉ-LINGUÍSTICO");
-        textView.setTextSize(size);
-        textView.setTextColor(Color.parseColor(textColor));
-        tabs.getTabAt(0).setCustomView(textView);
-
-        TextView textView2 = (TextView) LayoutInflater.from(this.getContext()).inflate(R.layout.custom_tab,null);
-        textView2.setText("PÓS-LINGUÍSTICO");
-        textView2.setTextSize(size);
-        textView2.setTextColor(Color.parseColor(textColor));
-        tabs.getTabAt(1).setCustomView(textView2);*/
         String[] tabNames = {"Pré-Linguístico", "Pós-Linguistíco"};
         for (int i = 0; i < tabs.getTabCount(); i++) {
             tabs.getTabAt(i).setCustomView(R.layout.custom_tab);
@@ -132,13 +145,10 @@ public class LearningFragment extends Fragment {
     // Add Fragments to Tabs
     private void setupViewPager(ViewPager viewPager) {
 
-
-        Adapter adapter = new Adapter(getChildFragmentManager());
+        adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new PreLingFragment(), "Pré-Linguistico");
         adapter.addFragment(new PosLingFragment(), "Pós-Linguistico");
         viewPager.setAdapter(adapter);
-
-
 
     }
 

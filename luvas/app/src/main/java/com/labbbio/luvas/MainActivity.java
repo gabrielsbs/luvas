@@ -40,6 +40,7 @@ import com.labbbio.luvas.ble.SampleGattAttributes;
 import com.labbbio.luvas.ble.Scanner_BTLE;
 import com.labbbio.luvas.ble.BTLE_Device;
 import com.labbbio.luvas.exercisedb.ExerciseDBHelper;
+import com.labbbio.luvas.exercisedb.ExerciseItem;
 import com.labbbio.luvas.fragments.BluetoothFragment;
 import com.labbbio.luvas.fragments.ExerciseFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
@@ -64,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
+
+
+    private int posLingLastExercise = 0;
+    private int preLingLastExercise = 0;
 
     private Scanner_BTLE scanner_btle;
 
@@ -106,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.d(TAG,"Service connected");
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -144,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String incomingMessage = intent.getStringExtra(EXTRA_DATA);
                 Log.d(TAG, "InputStream: " + incomingMessage);
 
-                Intent incomingMessageIntent = new Intent("incommingMessage");
+                Intent incomingMessageIntent = new Intent("incomingMessage");
                 incomingMessageIntent.putExtra("message",incomingMessage);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
 
@@ -164,6 +170,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
+     //   mBluetoothLeService = new BluetoothLeService();
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         btDevices = new ArrayList<>();
@@ -176,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ExerciseDBHelper dbHelper = new ExerciseDBHelper(this);
         database = dbHelper.getWritableDatabase();
 
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         menu_lateral = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -204,11 +214,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         menu_lateral.addDrawerListener(toggle);
         toggle.syncState();
-
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
@@ -288,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
         else{
+            checkBTPermissions();
             startScan();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new BluetoothFragment()).commit();
             currentFragment = BLUETOOTH_FRAGMENT;
@@ -301,7 +307,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void learningFragmentStart() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
+        LearningFragment f =  new LearningFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,f).commit();
         navigationView.setCheckedItem(R.id.nav_treinamento);
         currentFragment = LEARNING_FRAGMENT;
     }
@@ -472,13 +479,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG, "auxiliarReceiver: Device Disconnected");
                 if (currentFragment == HOME_FRAGMENT) {
                     Log.d(TAG, "HomeFragment");
-                    HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+//                    HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                     luvasName = null;
-                    fragment.changeCardText();
-                } else if (currentFragment == LEARNING_FRAGMENT) {
-                    LearningFragment fragment = (LearningFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                    luvasName = null;
-                    fragment.changeCardText();
+                 //   fragment.changeCardText();
                 }
             }
 
@@ -498,6 +501,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         scanner_btle.stop();
 
+    }
+
+    public void startConnection(String address){
+        Log.d(TAG,"Starting Connection");
+        mDeviceAddress = address;
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        this.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
     public SQLiteDatabase getDatabase(){
@@ -548,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         stopScan();
         unbindService(mServiceConnection);
-        mBluetoothLeService = null;
+      //  mBluetoothLeService = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(mGattUpdateReceiver);

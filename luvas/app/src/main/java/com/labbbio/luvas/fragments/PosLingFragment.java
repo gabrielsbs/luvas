@@ -34,18 +34,30 @@ public class PosLingFragment extends Fragment {
 
     String TAG = "POSLINGFRAGMENT";
 
+    private static PosLingFragment instance = null;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        instance = this;
+    }
+
+    public static PosLingFragment getInstance() {
+        return instance;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_pos_ling, container, false);
 
-        ExerciseDBHelper dbHelper = new ExerciseDBHelper(this.getContext());
-        database = ((MainActivity)this.getActivity()).getDatabase();
+        setDatabase();
+        getLastExercise();
 
         setRecyclerView(view);
         createExerciseList();
-        addExercisestoDB();
+        addExercisesToDB();
 
         return view;
 
@@ -61,7 +73,7 @@ public class PosLingFragment extends Fragment {
         }
     }
 
-    public void addExercisestoDB(){
+    public void addExercisesToDB(){
         for(ExerciseItem item: exerciseItems){
             int qNumber = item.getExerciseNumber();
             String question = item.getQuestion();
@@ -74,6 +86,9 @@ public class PosLingFragment extends Fragment {
         }
     }
 
+    public void setDatabase(){
+        database = ((MainActivity)this.getActivity()).getDatabase();
+    }
 
     public void setRecyclerView(View view){
 
@@ -90,28 +105,24 @@ public class PosLingFragment extends Fragment {
             public void onItemClick(int position) {
                // changeItem(position, "Clicked");
                 callExerciseFragment(position+1);
-                updateLastExercise();
-                getLastExercise();
 
             }
         });
     }
 
     public int getLastExercise(){
-        int x = 0;
         String[] column = new String[]{ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING};
         Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME,column,null,null,null,null,null);
         int ex = cursor.getColumnIndex(ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING);
         if(cursor.moveToNext()){
-            x = cursor.getInt(ex);
-            Log.d(TAG,"LastExercise = "+x);
-
+            lastExercise = cursor.getInt(ex);
+            Log.d(TAG,"LastExercise = "+lastExercise);
         }
-        return x;
+
+        return lastExercise;
     }
 
     public void updateLastExercise(){
-        ContentValues cv = new ContentValues();
         lastExercise = lastExercise+1;
         String command = "UPDATE " +
                 ExerciseItem.LastExerciseEntry.TABLE_NAME +
@@ -122,6 +133,7 @@ public class PosLingFragment extends Fragment {
     }
 
     public void callExerciseFragment(int questionNumber){
+        Log.d(TAG,"LastExercise = "+lastExercise);
         ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME, questionNumber);
     }
 }

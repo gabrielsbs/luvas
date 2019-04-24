@@ -85,7 +85,7 @@ public class MessengerFragment extends Fragment {
             }
         });
 
-        IntentFilter intentF = new IntentFilter("incommingMessage");
+        IntentFilter intentF = new IntentFilter("incomingMessage");
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(incomingMessageReceiver,intentF);
 
         return view;

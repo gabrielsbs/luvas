@@ -143,6 +143,12 @@ public class BluetoothLeService extends Service {
         return super.onUnbind(intent);
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+    }
+
     private final IBinder mBinder = new BluetoothLeService.LocalBinder();
 
     /**

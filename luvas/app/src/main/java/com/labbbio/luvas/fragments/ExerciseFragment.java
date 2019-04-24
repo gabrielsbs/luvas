@@ -1,17 +1,16 @@
 package com.labbbio.luvas.fragments;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -21,7 +20,6 @@ import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 import com.labbbio.luvas.exercisedb.ExerciseItem;
 
-import java.nio.charset.Charset;
 
 public class ExerciseFragment extends Fragment {
 
@@ -79,6 +77,7 @@ public class ExerciseFragment extends Fragment {
     }
 
     private void goToNextQuestion() {
+        PosLingFragment.getInstance().updateLastExercise();
         ((MainActivity) this.getActivity()).exerciseFragmentStart(tableName,questionNumber+1);
     }
 

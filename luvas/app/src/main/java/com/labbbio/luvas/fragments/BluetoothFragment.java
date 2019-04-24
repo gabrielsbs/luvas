@@ -153,11 +153,7 @@ public class BluetoothFragment extends Fragment{
 
                     Log.d(TAG, "onItemClick: deviceName = " + btDevice.getName());
 
-
-
                     startConnection();
-
-
 
                 }
             }
@@ -167,7 +163,8 @@ public class BluetoothFragment extends Fragment{
     }
 
     public void startConnection(){
-
+        Log.d(TAG,"Starting Connection");
+        ((MainActivity) getActivity()).startConnection(btDevice.getAddress());
     }
 
     public void addDevice(BluetoothDevice device, int new_rssi){
