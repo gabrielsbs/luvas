@@ -96,9 +96,12 @@ public class PosLingFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getContext());
         mAdapter = new ExerciseAdapter(exerciseItems);
+        mAdapter.setLastExercise(lastExercise);
 
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+
+
 
         mAdapter.setOnItemClickListener(new ExerciseAdapter.OnItemClickListener() {
             @Override

@@ -2,7 +2,6 @@ package com.labbbio.luvas.ble;
 
 import android.app.Service;
 
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -32,7 +31,8 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private BluetoothGattCharacteristic characteristic;
+    private BluetoothGattCharacteristic characteristicRX;
+    private BluetoothGattCharacteristic characteristicTX;
     private BluetoothGattDescriptor descriptor;
     private BluetoothGattService service;
     private int mConnectionState = STATE_DISCONNECTED;
@@ -81,12 +81,13 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 service = mBluetoothGatt.getService(UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB"));
-                characteristic= service.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"));
+                characteristicRX= service.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"));
                 UUID uuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-                descriptor = characteristic.getDescriptor(uuid);
+                descriptor = characteristicRX.getDescriptor(uuid);
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                mBluetoothGatt.setCharacteristicNotification(characteristic, true);
+                mBluetoothGatt.setCharacteristicNotification(characteristicRX, true);
                 mBluetoothGatt.writeDescriptor(descriptor);
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
 
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -213,7 +214,7 @@ public class BluetoothLeService extends Service {
             } else {
 
                 final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+                mBluetoothGatt = device.connectGatt(this, true, mGattCallback);
                 mBluetoothDeviceAddress = address;
                 Log.d(TAG,"Connected");
                 return false;
@@ -277,15 +278,16 @@ public class BluetoothLeService extends Service {
 
     /**
      * Write to a given char
-     * @param characteristic The characteristic to write to
+     * The characteristic to write to
      */
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+    public void writeCharacteristic(byte[] message) {
+        characteristicTX = service.getCharacteristic(UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB"));
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-
-        mBluetoothGatt.writeCharacteristic(characteristic);
+        characteristicTX.setValue(message);
+        mBluetoothGatt.writeCharacteristic(characteristicTX);
     }
 
     /**

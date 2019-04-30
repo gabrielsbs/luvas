@@ -16,7 +16,7 @@ public class ExerciseItem {
 
         this.question = question;
 
-        title = "Atividade "+ Integer.toString(exerciseNumber);
+        title = "Exercício "+ Integer.toString(exerciseNumber);
     }
 
     public String getQuestion() {
@@ -43,13 +43,10 @@ public class ExerciseItem {
         public static final String COLUMN_ANSWER = "answer";
     }
 
-    public static final class LastExerciseEntry implements BaseColumns{
+    public static final class LastExerciseEntry implements BaseColumns {
         public static final String TABLE_NAME = "lastExerciseList";
         public static final String COLUMN_LAST_PRELING = "lastPreLing";
         public static final String COLUMN_LAST_POSLING = "lastPosLing";
     }
-
-
-
 
 }

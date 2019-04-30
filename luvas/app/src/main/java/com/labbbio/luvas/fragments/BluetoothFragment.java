@@ -204,6 +204,7 @@ public class BluetoothFragment extends Fragment{
         Log.d(TAG,"onDestroyView");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(connectionReceiver);
         //LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(discoveryReceiver);
+
         temp = btDevices;
 
     }

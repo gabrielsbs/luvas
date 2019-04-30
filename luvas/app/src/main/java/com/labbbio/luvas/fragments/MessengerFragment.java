@@ -21,9 +21,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.labbbio.luvas.LuvasApp;
+import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
 import java.nio.charset.Charset;
+
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class MessengerFragment extends Fragment {
     EditText outputText;
@@ -61,15 +65,19 @@ public class MessengerFragment extends Fragment {
             messages.append("Mensagens Recebidas: \n");
         }
 
-        InputMethodManager imgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        if (outputText.requestFocus()) {
+            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(
+                    InputMethodManager.SHOW_FORCED,
+                    InputMethodManager.HIDE_IMPLICIT_ONLY
+            );
+        }
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG,"Button pressed");
                 byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-               // ((LuvasApp) getActivity().getApplication()).getBluetoothService().write(bytes);
+                sendMessage(bytes);
                 if(outputText.length()>0)
                     outputText.getText().clear();
             }
@@ -97,7 +105,7 @@ public class MessengerFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             Log.d("Incoming","Broadcast OK");
             String text = intent.getStringExtra("message");
-            messages.append(text + "\n");
+            messages.append(text);
 
             inputText.setText(messages);
         }
@@ -111,6 +119,24 @@ public class MessengerFragment extends Fragment {
         String color = (((LuvasApp) getActivity().getApplication()).getTextColor());
         outputText.setTextColor(Color.parseColor(color));
         inputText.setTextColor(Color.parseColor(color));
+    }
+
+
+    public void sendMessage(byte[] bytes){
+        Log.d(TAG,"Sending Message");
+        int msgLength = bytes.length;
+        while(msgLength>19){
+            byte[] msg = new byte[20];
+            for (int i = 0;i<19;i++){
+                msg[i]=bytes[i];
+            }
+            msg[19] = '\r';
+            ((MainActivity) getActivity()).sendMessage(msg);
+            msgLength = msgLength-19;
+        }
+
+        bytes[msgLength-1] ='\r';
+        ((MainActivity) getActivity()).sendMessage(bytes);
     }
 
     @Override

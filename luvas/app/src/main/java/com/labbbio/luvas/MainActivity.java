@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int BLUETOOTH_FRAGMENT = 3;
     private static final int EXERCISE_FRAGMENT = 4;
 
-    public final static UUID UUID_HM_RX_TX =
-            UUID.fromString(SampleGattAttributes.HM_RX_TX);
-
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
 
@@ -101,16 +98,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private BluetoothLeService mBluetoothLeService;
     private boolean mConnected = false;
-    private BluetoothGattCharacteristic characteristicTX;
-    private BluetoothGattCharacteristic characteristicRX;
-
+    private boolean isBound = false;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             Log.d(TAG,"Service connected");
@@ -121,13 +115,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
+            isBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mBluetoothLeService = null;
+            isBound = false;
         }
+
+
     };
+    public boolean isBound() {
+        return isBound;
+    }
 
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -142,14 +143,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.d(TAG,"GATT Connected");
                 mConnected = true;
-
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
                 Log.d(TAG,"Services discovered");
-                displayGattServices(mBluetoothLeService.getSupportedGattServices());
-                mBluetoothLeService.readCharacteristic(characteristicRX);
+                homeFragmentStart();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //displayData(intent.getStringExtra(mBluetoothLeService.EXTRA_DATA));
                 Log.d(TAG,"Data Available");
@@ -177,9 +176,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
-     //   mBluetoothLeService = new BluetoothLeService();
-
-
         checkBTPermissions();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -187,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         registerReceiver();
 
-        scanner_btle = new Scanner_BTLE(this,3000, -75);
+        scanner_btle = new Scanner_BTLE(this,2000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         ExerciseDBHelper dbHelper = new ExerciseDBHelper(this);
@@ -372,6 +368,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public int getCurrentFragment(){
+        return currentFragment;
+    }
+
     private void changeMenuFontSize() {
         int size = ((LuvasApp)getApplication()).getFontSize();
         Spannable span = new SpannableString("Home");
@@ -496,30 +496,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-    private void displayGattServices(List<BluetoothGattService> gattServices) {
-        if (gattServices == null) return;
-        String uuid = null;
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
-
-
-        // Loops through available GATT Services.
-        for (BluetoothGattService gattService : gattServices) {
-            HashMap<String, String> currentServiceData = new HashMap<String, String>();
-            String unknownServiceString = "Unknown Service";
-            uuid = gattService.getUuid().toString();
-            currentServiceData.put(
-                    LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
-
-            // If the service exists for HM 10 Serial, say so.
-            currentServiceData.put(LIST_UUID, uuid);
-            gattServiceData.add(currentServiceData);
-
-            // get characteristic when UUID matches RX/TX UUID
-            characteristicTX = gattService.getCharacteristic(BluetoothLeService.UUID_HM_RX_TX);
-            characteristicRX = gattService.getCharacteristic(BluetoothLeService.UUID_HM_RX_TX);
-        }
-        Log.d(TAG,characteristicRX.getUuid().toString());
-    }
 
     public void startScan(){
         Log.d(TAG,"Starting scan");
@@ -540,6 +516,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDeviceAddress = address;
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         this.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+    }
+
+    public void sendMessage(byte[] message){
+        if(mConnected){
+            mBluetoothLeService.writeCharacteristic(message);
+        }
     }
 
     public SQLiteDatabase getDatabase(){
@@ -589,9 +571,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "OnDestroy");
         super.onDestroy();
         stopScan();
-        unbindService(mServiceConnection);
-        mBluetoothLeService.disconnect();
-        mBluetoothLeService = null;
+        if(isBound){
+            unbindService(mServiceConnection);
+        }
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(mGattUpdateReceiver);

@@ -21,6 +21,8 @@ public class Scanner_BTLE {
     private Handler mHandler;
     private String TAG = "SCANNER_BTLE";
 
+    private static final int BLUETOOTH_FRAGMENT = 3;
+
     private long scanPeriod;
     private int signalStrength;
 
@@ -90,10 +92,12 @@ public class Scanner_BTLE {
                             public void run() {
                                 Log.d(TAG, "deviceName = " + device.getName());
                                 Log.d(TAG, "RSSI = " + rssi);
-                                ((BluetoothFragment)mainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container)).addDevice(device, new_rssi);
+                                if(mainActivity.getCurrentFragment() == BLUETOOTH_FRAGMENT)
+                                    ((BluetoothFragment)mainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_container)).addDevice(device, new_rssi);
                             }
                         });
                     }
                 }
             };
+
 }

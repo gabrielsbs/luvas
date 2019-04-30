@@ -1,7 +1,10 @@
 package com.labbbio.luvas.exercisedb;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,7 @@ import java.util.ArrayList;
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
     private ArrayList<ExerciseItem> exerciseItemArrayList;
     private OnItemClickListener mListener;
+    private int lastExercise;
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -54,8 +58,13 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder exerciseViewHolder, int position) {
         ExerciseItem currentItem = exerciseItemArrayList.get(position);
-
         exerciseViewHolder.titleView.setText(currentItem.getExerciseTitle());
+        if(position<lastExercise){
+            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#abad68"));
+        }
+        else{
+            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#f5f021"));
+        }
     }
 
     @Override
@@ -63,7 +72,11 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         return exerciseItemArrayList.size();
     }
 
-   public ExerciseAdapter(ArrayList<ExerciseItem> list){
+    public void setLastExercise(int lastExercise) {
+        this.lastExercise = lastExercise;
+    }
+
+    public ExerciseAdapter(ArrayList<ExerciseItem> list){
         this.exerciseItemArrayList = list;
    }
 }
