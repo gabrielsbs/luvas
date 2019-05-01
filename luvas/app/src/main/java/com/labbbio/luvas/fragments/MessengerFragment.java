@@ -76,8 +76,8 @@ public class MessengerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG,"Button pressed");
-                byte[] bytes = outputText.getText().toString().getBytes(Charset.defaultCharset());
-                sendMessage(bytes);
+                String msg = outputText.getText().toString();
+                ((MainActivity) getActivity()).sendMessage(msg);
                 if(outputText.length()>0)
                     outputText.getText().clear();
             }
@@ -121,23 +121,6 @@ public class MessengerFragment extends Fragment {
         inputText.setTextColor(Color.parseColor(color));
     }
 
-
-    public void sendMessage(byte[] bytes){
-        Log.d(TAG,"Sending Message");
-        int msgLength = bytes.length;
-        while(msgLength>19){
-            byte[] msg = new byte[20];
-            for (int i = 0;i<19;i++){
-                msg[i]=bytes[i];
-            }
-            msg[19] = '\r';
-            ((MainActivity) getActivity()).sendMessage(msg);
-            msgLength = msgLength-19;
-        }
-
-        bytes[msgLength-1] ='\r';
-        ((MainActivity) getActivity()).sendMessage(bytes);
-    }
 
     @Override
     public void onDestroyView() {

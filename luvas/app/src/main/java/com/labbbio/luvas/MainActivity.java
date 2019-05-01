@@ -518,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
-    public void sendMessage(byte[] message){
+    public void sendMessage(String message){
         if(mConnected){
             mBluetoothLeService.writeCharacteristic(message);
         }
@@ -569,14 +569,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         Log.d(TAG, "OnDestroy");
-        super.onDestroy();
         stopScan();
+
         if(isBound){
+            mBluetoothLeService.close();
             unbindService(mServiceConnection);
         }
+
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(mGattUpdateReceiver);
+        super.onDestroy();
     }
 
 }
