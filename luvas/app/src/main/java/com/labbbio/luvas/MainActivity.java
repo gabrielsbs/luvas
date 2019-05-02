@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
 
+    private int lastViewLearning = 0;
+
 
     private int posLingLastExercise = 0;
     private int preLingLastExercise = 0;
@@ -241,6 +243,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setLastFragment(int lastFragment) {
         this.lastFragment = lastFragment;
+    }
+
+    public void setLastViewLearning(int lastViewLearning){
+        this.lastViewLearning = lastViewLearning;
+    }
+
+    public int getLastViewLearning(){
+        return lastViewLearning;
     }
 
     @Override

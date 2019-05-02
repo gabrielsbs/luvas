@@ -34,6 +34,8 @@ public class LearningFragment extends Fragment {
 
     private int posLingLastExercise;
     private int preLingLastExercise;
+    private int lastView;
+    private String temp;
 
 
     private static final int LEARNING_FRAGMENT = 2;
@@ -50,6 +52,8 @@ public class LearningFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
+        setRetainInstance(true);
+
 
 
         // Setting ViewPager for each Tabs
@@ -74,6 +78,13 @@ public class LearningFragment extends Fragment {
         });
 
 
+
+
+        viewPager.setCurrentItem( ((MainActivity) this.getActivity()).getLastViewLearning() );
+
+
+
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -83,6 +94,7 @@ public class LearningFragment extends Fragment {
             @Override
             public void onPageSelected(int i) {
                 Log.d(TAG,"Page: "+i);
+                setLastViewPage(i);
                 if (i ==0){
                     if(preLingLastExercise>0){
                         changeCardText(new String("Voltar de onde parei"));
@@ -112,6 +124,10 @@ public class LearningFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public void setLastViewPage(int i){
+        ((MainActivity) this.getActivity()).setLastViewLearning(i);
     }
 
     private void startExercise() {
@@ -181,7 +197,10 @@ public class LearningFragment extends Fragment {
         }
     }
 
-
-
+    @Override
+    public void onDestroy() {
+        Log.d(TAG,"Destroy");
+        super.onDestroy();
+    }
 
 }
