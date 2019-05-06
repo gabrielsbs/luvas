@@ -62,7 +62,7 @@ public class MessengerFragment extends Fragment {
             inputText.setText(messages);
         }else{
             messages = new StringBuilder();
-            messages.append("Mensagens Recebidas: \n");
+            messages.append("Mensagens recebidas: \n");
         }
 
         if (outputText.requestFocus()) {
@@ -88,7 +88,7 @@ public class MessengerFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(TAG,"Delete button");
                 messages.setLength(0);
-                messages.append("Mensagens Recebidas: \n");
+                messages.append("Mensagens recebidas: \n");
                 inputText.setText(messages);
             }
         });
@@ -105,6 +105,7 @@ public class MessengerFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             Log.d("Incoming","Broadcast OK");
             String text = intent.getStringExtra("message");
+            text = text.substring(0,1);
             messages.append(text);
 
             inputText.setText(messages);

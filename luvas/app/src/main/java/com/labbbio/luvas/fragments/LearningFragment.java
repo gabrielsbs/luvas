@@ -52,9 +52,6 @@ public class LearningFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
-        setRetainInstance(true);
-
-
 
         // Setting ViewPager for each Tabs
         viewPager = view.findViewById(R.id.viewpager);

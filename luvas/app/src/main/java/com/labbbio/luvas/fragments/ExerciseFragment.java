@@ -48,6 +48,7 @@ public class ExerciseFragment extends Fragment {
 
         database = ((MainActivity)this.getActivity()).getDatabase();
 
+
         questionView = view.findViewById(R.id.textview_question);
         answerView = view.findViewById(R.id.answer);
         send = view.findViewById(R.id.button_send);
@@ -56,6 +57,9 @@ public class ExerciseFragment extends Fragment {
 
         tableName= getArguments().getString("tableName");
         questionNumber = getArguments().getInt("questionNumber");
+
+
+        this.getActivity().setTitle("Exercício "+questionNumber);
 
         getQuestionText();
         
@@ -67,10 +71,9 @@ public class ExerciseFragment extends Fragment {
                 answerView.getText().clear();
                 
                 if(answerTried.equals(answer)){
-                    goToNextQuestion();
+                    correctAnswer();
                 }else{
                     wrongAnswer();
-
                 }
                    
             }
@@ -85,22 +88,21 @@ public class ExerciseFragment extends Fragment {
     private BroadcastReceiver incomingMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Incoming","Broadcast " +
-                    "OK");
+            Log.d("Incoming","Broadcast " +"OK");
             String text= intent.getStringExtra("message");
             String s = "\\n";
             if(text.equals(s)){
                 Log.d(TAG,"Enter Received");
                 String answerTried =  answerView.getText().toString();
                 answerView.getText().clear();
-
                 if(answerTried.equals(answer)){
-                    goToNextQuestion();
+                    correctAnswer();
                 }else{
                     wrongAnswer();
                 }
             }
             else{
+                text = text.substring(0,1);
                 messages.append(text);
                 answerView.setText(messages.toString());
             }
@@ -108,7 +110,14 @@ public class ExerciseFragment extends Fragment {
         }
     };
 
+
+    private void correctAnswer(){
+        ((MainActivity) this.getActivity()).sendMessage("Correct");
+        goToNextQuestion();
+    }
+
     private void wrongAnswer() {
+        ((MainActivity) this.getActivity()).sendMessage("Wrong");
         Toast.makeText(this.getContext(), "Reposta Errada", Toast.LENGTH_SHORT).show();
     }
 
@@ -118,12 +127,9 @@ public class ExerciseFragment extends Fragment {
     }
 
     private void getQuestionText() {
-        int x = 0;
         String[] column = new String[]{ExerciseItem.ExerciseEntry.COLUMN_NUMBER, ExerciseItem.ExerciseEntry.COLUMN_QUESTION, ExerciseItem.ExerciseEntry.COLUMN_ANSWER};
         String query = "SELECT * FROM " + tableName + " WHERE " + ExerciseItem.ExerciseEntry.COLUMN_NUMBER + " = ?";
-        //Cursor cursor = database.query(tableName,column,null,null,null,null,null);
         Cursor cursor = database.rawQuery(query, new String[]{Integer.toString(questionNumber)});
-        int numberIndex = cursor.getColumnIndex(column[0]);
         int questionIndex =cursor.getColumnIndex(column[1]);
         int answerIndex = cursor.getColumnIndex(column[2]);
         if(cursor.moveToNext()){
@@ -138,6 +144,7 @@ public class ExerciseFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG,"Destroy");
+        this.getActivity().setTitle("Mensageiro Luvas");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incomingMessageReceiver);
     }
 }

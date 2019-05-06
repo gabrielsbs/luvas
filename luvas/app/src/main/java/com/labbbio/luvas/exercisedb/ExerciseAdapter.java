@@ -59,11 +59,14 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     public void onBindViewHolder(@NonNull ExerciseViewHolder exerciseViewHolder, int position) {
         ExerciseItem currentItem = exerciseItemArrayList.get(position);
         exerciseViewHolder.titleView.setText(currentItem.getExerciseTitle());
-        if(position<lastExercise){
-            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#abad68"));
+        int exercisePosition = position +1;
+        if(exercisePosition<=lastExercise){
+            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#84ff0a"));
+        }else if(exercisePosition == lastExercise+1){
+            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#f5f021"));
         }
         else{
-            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#f5f021"));
+            ((CardView)(exerciseViewHolder.titleView.getParent()).getParent()).setCardBackgroundColor(Color.parseColor("#abad68"));
         }
     }
 

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
@@ -114,11 +115,19 @@ public class PosLingFragment extends Fragment {
         mAdapter.setOnItemClickListener(new ExerciseAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-               // changeItem(position, "Clicked");
-                callExerciseFragment(position+1);
+                if(position<=lastExercise)
+                    callExerciseFragment(position+1);
+                else
+                    lockedQuestion();
 
             }
         });
+    }
+
+
+    public void lockedQuestion(){
+        int question = lastExercise +1;
+        Toast.makeText(this.getContext(), "Ainda não, faça a questão "+question+" primeiro", Toast.LENGTH_SHORT).show();
     }
 
     public int getLastExercise(){
@@ -697,7 +706,7 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number,question,answer));
         number = number+1;
 
-        question = "Digit: Aquele dia vai ficar na lembrança.";
+        question = "Digite: Aquele dia vai ficar na lembrança.";
         answer = "Aquele dia vai ficar na lembrança.";
         exerciseItems.add(new ExerciseItem(number,question,answer));
         number = number+1;

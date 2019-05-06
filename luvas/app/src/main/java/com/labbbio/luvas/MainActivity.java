@@ -20,6 +20,8 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -330,10 +332,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Bundle bundle = new Bundle();
         bundle.putString("tableName",tableName);
         bundle.putInt("questionNumber",questionNumber);
-        ExerciseFragment f =new ExerciseFragment();
-        f.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,f).commit();
-        currentFragment = EXERCISE_FRAGMENT;
+        ExerciseFragment exerciseFragment =new ExerciseFragment();
+        exerciseFragment.setArguments(bundle);
+
+        if(currentFragment == EXERCISE_FRAGMENT){
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            transaction.replace(R.id.fragment_container,exerciseFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }else{
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,exerciseFragment).commit();
+            currentFragment = EXERCISE_FRAGMENT;
+        }
     }
 
 
