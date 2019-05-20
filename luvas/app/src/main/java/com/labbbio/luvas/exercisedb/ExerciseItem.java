@@ -8,12 +8,13 @@ public class ExerciseItem {
     private String title;
     private String question;
     private String answer;
+    private String questionType;
 
 
-    public ExerciseItem(int number , String question, String answer) {
+    public ExerciseItem(int number , String question, String answer, String questionType) {
         this.answer = answer;
         this.exerciseNumber = number;
-
+        this.questionType = questionType;
         this.question = question;
 
         title = "Exercício "+ Integer.toString(exerciseNumber);
@@ -35,13 +36,10 @@ public class ExerciseItem {
         return title;
     }
 
-    public static final class ExerciseEntry implements BaseColumns{
-        public static final String PRELING_TABLE_NAME = "preLingExerciseList";
-        public static final String POSLING_TABLE_NAME = "posLingExerciseList";
-        public static final String COLUMN_NUMBER = "number";
-        public static final String COLUMN_QUESTION = "question";
-        public static final String COLUMN_ANSWER = "answer";
+    public String getQuestionType() {
+        return questionType;
     }
+
 
     public static final class LastExerciseEntry implements BaseColumns {
         public static final String TABLE_NAME = "lastExerciseList";

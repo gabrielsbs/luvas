@@ -2,17 +2,17 @@ package com.labbbio.luvas.exercisedb;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import com.labbbio.luvas.exercisedb.ExerciseItem.ExerciseEntry;
 import com.labbbio.luvas.exercisedb.ExerciseItem.LastExerciseEntry;
 
 public class ExerciseDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "exerciselist.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
+    private  String TAG = "ExerciseDBHelper";
 
     public ExerciseDBHelper(Context context){
         super(context, DATABASE_NAME,null,DATABASE_VERSION);
@@ -20,22 +20,7 @@ public class ExerciseDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
-        final String SQL_CREATE_POSLING_EXERCISELIST_TABLE = "CREATE TABLE " +
-                ExerciseEntry.POSLING_TABLE_NAME + " (" +
-                ExerciseEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                ExerciseEntry.COLUMN_NUMBER + " INTEGER NOT NULL, " +
-                ExerciseEntry.COLUMN_QUESTION + " TEXT NOT NULL, " +
-                ExerciseEntry.COLUMN_ANSWER + " TEXT NOT NULL" +
-                ");";
-        final String SQL_CREATE_PRELING_EXERCISELIST_TABLE = "CREATE TABLE " +
-                ExerciseEntry.PRELING_TABLE_NAME + " (" +
-                ExerciseEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                ExerciseEntry.COLUMN_NUMBER + " INTEGER NOT NULL, " +
-                ExerciseEntry.COLUMN_QUESTION + " TEXT NOT NULL, " +
-                ExerciseEntry.COLUMN_ANSWER + " TEXT NOT NULL" +
-                ");";
-
+        Log.d(TAG,"OnCreate");
         final String SQL_CREATE_LASTEXERCISELIST_TABLE = "CREATE TABLE " +
                 LastExerciseEntry.TABLE_NAME + " (" +
                 LastExerciseEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -43,8 +28,7 @@ public class ExerciseDBHelper extends SQLiteOpenHelper {
                 LastExerciseEntry.COLUMN_LAST_POSLING + " INTEGER NOT NULL " +
                 ");";
 
-        db.execSQL(SQL_CREATE_POSLING_EXERCISELIST_TABLE);
-        db.execSQL(SQL_CREATE_PRELING_EXERCISELIST_TABLE);
+
         db.execSQL(SQL_CREATE_LASTEXERCISELIST_TABLE);
 
         ContentValues cv = new ContentValues();
@@ -54,11 +38,21 @@ public class ExerciseDBHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     *
+     * @param db deverá ser o nome em DATABASE_NAME
+     * @param oldVersion deverá ser o número guardado em DATABASE_VERSION
+     * @param newVersion deverá ser DATABASE_VERSION+1
+     */
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + ExerciseEntry.POSLING_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + ExerciseEntry.PRELING_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LastExerciseEntry.TABLE_NAME);
         onCreate(db);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
     }
 }

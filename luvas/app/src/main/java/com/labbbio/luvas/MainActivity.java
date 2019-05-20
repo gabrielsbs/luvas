@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -76,12 +77,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int posLingLastExercise = 0;
     private int preLingLastExercise = 0;
 
+
+    private ArrayList<ExerciseItem> posExerciseItems = new ArrayList<>();
+
     private Scanner_BTLE scanner_btle;
 
 
     private static final String TAG = "MainActivity";
 
     private SQLiteDatabase database;
+    private ExerciseDBHelper dbHelper;
 
     BluetoothAdapter mBluetoothAdapter;
     public ArrayList<BTLE_Device> btDevices;
@@ -106,6 +111,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+
+
+    public ArrayList<ExerciseItem> getPosExerciseItemsItems() {
+        return posExerciseItems;
+    }
+
+
+    public ExerciseItem getExercise(String type, int position){
+        if(type.equals("PosLing")){
+            return posExerciseItems.get(position);
+        }else if(type.equals("PreLing")){
+            return null;
+        }
+        return null;
+    }
 
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -190,9 +210,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         scanner_btle = new Scanner_BTLE(this,2000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        ExerciseDBHelper dbHelper = new ExerciseDBHelper(this);
+        dbHelper = new ExerciseDBHelper(this);
         database = dbHelper.getWritableDatabase();
-
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         menu_lateral = findViewById(R.id.drawer_layout);
@@ -328,9 +347,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = LEARNING_FRAGMENT;
     }
 
-    public void exerciseFragmentStart(String tableName, int questionNumber){
+    public void exerciseFragmentStart(String ExerciseType, int questionNumber){
         Bundle bundle = new Bundle();
-        bundle.putString("tableName",tableName);
+        bundle.putString("ExerciseType",ExerciseType);
         bundle.putInt("questionNumber",questionNumber);
         ExerciseFragment exerciseFragment =new ExerciseFragment();
         exerciseFragment.setArguments(bundle);
@@ -591,12 +610,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         Log.d(TAG, "OnDestroy");
         stopScan();
-
         if(isBound){
             mBluetoothLeService.close();
             unbindService(mServiceConnection);
         }
-
         LocalBroadcastManager.getInstance(this).unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(auxiliarReceiver);
         unregisterReceiver(mGattUpdateReceiver);

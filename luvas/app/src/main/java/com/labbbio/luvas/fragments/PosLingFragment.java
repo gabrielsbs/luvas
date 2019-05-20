@@ -28,10 +28,10 @@ public class PosLingFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ExerciseAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private ArrayList<ExerciseItem> exerciseItems = new ArrayList<>();
+    private ArrayList<ExerciseItem> exerciseItems;
 
     private int lastExercise;
-    private int number =1;
+    private int number = 1;
 
     String TAG = "POSLINGFRAGMENT";
 
@@ -52,13 +52,14 @@ public class PosLingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_pos_ling, container, false);
+        exerciseItems = ((MainActivity) this.getActivity()).getPosExerciseItemsItems();
 
         setDatabase();
         getLastExercise();
 
         setRecyclerView(view);
-        createExerciseList();
-        addExercisesToDB();
+        if(exerciseItems.size() == 0)
+            createExerciseList();
 
         return view;
 
@@ -66,7 +67,7 @@ public class PosLingFragment extends Fragment {
     }
 
 
-    public void createExerciseList(){
+    public void createExerciseList() {
         numbersExercise();
         lowCaseExercises();
         wordExercises1();
@@ -78,28 +79,15 @@ public class PosLingFragment extends Fragment {
         delimitersExercises();
         mathExercises();
         phrasesExercises();
-        mAdapter.notifyDataSetChanged();
 
     }
 
-    public void addExercisesToDB(){
-        for(ExerciseItem item: exerciseItems){
-            int qNumber = item.getExerciseNumber();
-            String question = item.getQuestion();
-            String answer = item.getAnswer();
-            ContentValues cv = new ContentValues();
-            cv.put(ExerciseItem.ExerciseEntry.COLUMN_NUMBER,qNumber);
-            cv.put(ExerciseItem.ExerciseEntry.COLUMN_QUESTION,question);
-            cv.put(ExerciseItem.ExerciseEntry.COLUMN_ANSWER,answer);
-            database.insert(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME,null,cv);
-        }
+
+    public void setDatabase() {
+        database = ((MainActivity) this.getActivity()).getDatabase();
     }
 
-    public void setDatabase(){
-        database = ((MainActivity)this.getActivity()).getDatabase();
-    }
-
-    public void setRecyclerView(View view){
+    public void setRecyclerView(View view) {
 
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
@@ -111,12 +99,11 @@ public class PosLingFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
 
-
         mAdapter.setOnItemClickListener(new ExerciseAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(position<=lastExercise)
-                    callExerciseFragment(position+1);
+                if (position <= lastExercise)
+                    callExerciseFragment(position + 1);
                 else
                     lockedQuestion();
 
@@ -125,596 +112,705 @@ public class PosLingFragment extends Fragment {
     }
 
 
-    public void lockedQuestion(){
-        int question = lastExercise +1;
-        Toast.makeText(this.getContext(), "Ainda não, faça a questão "+question+" primeiro", Toast.LENGTH_SHORT).show();
+    public void lockedQuestion() {
+        int question = lastExercise + 1;
+        Toast.makeText(this.getContext(), "Ainda não, faça a questão " + question + " primeiro", Toast.LENGTH_SHORT).show();
     }
 
-    public int getLastExercise(){
+    public int getLastExercise() {
         String[] column = new String[]{ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING};
-        Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME,column,null,null,null,null,null);
+        Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME, column, null, null, null, null, null);
         int ex = cursor.getColumnIndex(ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING);
-        if(cursor.moveToNext()){
+        if (cursor.moveToNext()) {
             lastExercise = cursor.getInt(ex);
-            Log.d(TAG,"LastExercise = "+lastExercise);
+            Log.d(TAG, "LastExercise = " + lastExercise);
         }
 
         return lastExercise;
     }
 
-    public void updateLastExercise(){
-        lastExercise = lastExercise+1;
+    public void updateLastExercise() {
+        lastExercise = lastExercise + 1;
         String command = "UPDATE " +
                 ExerciseItem.LastExerciseEntry.TABLE_NAME +
                 " SET " + ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING +
-                " = "+ lastExercise;
+                " = " + lastExercise;
 
         database.execSQL(command);
     }
 
-    public void callExerciseFragment(int questionNumber){
-        Log.d(TAG,"LastExercise = "+lastExercise);
-        ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseItem.ExerciseEntry.POSLING_TABLE_NAME, questionNumber);
+    public void callExerciseFragment(int questionNumber) {
+        Log.d(TAG, "LastExercise = " + lastExercise);
+        ((MainActivity) this.getActivity()).exerciseFragmentStart("PosLing" ,questionNumber);
     }
 
-    public void numbersExercise(){
+    public void numbersExercise() {
 
-        String question = "Digite a sequenência 123456789";
-        String answer = "123456789";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+
+        //Questão teste
+        String question = "Qual é o número?";
+        String answer = "7";
+        String questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+
+        question = "Digite a \nsequência \n123456789";
+        answer = "123456789";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 2
         question = "Digite o número 7";
         answer = "7";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 3
         question = "Digite o número 5";
         answer = "5";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 4
         question = "Digite o número 0";
         answer = "0";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 5
         question = "Digite o número 3";
         answer = "3";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 6
         question = "Digite o número 9";
         answer = "9";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 7
         question = "Digite o número 2";
         answer = "2";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 8
         question = "Digite o número 4";
         answer = "4";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 9
         question = "Digite o número 6";
         answer = "6";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 10
         question = "Digite o número 38";
         answer = "38";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 11
         question = "Digite o número 42";
         answer = "42";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 12
         question = "Digite o número 19";
         answer = "19";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 13
         question = "Digite o número 432";
         answer = "432";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 14
         question = "Digite o número 569";
         answer = "569";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         //Questão 15
         question = "Digite o número 9258";
         answer = "9258";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
     }
 
-    public void lowCaseExercises(){
+    public void lowCaseExercises() {
         String answer;
         String question;
-        for(int i = 1; i<=26; i++){
-            answer = Character.toString((char) (i+96)); // letra a corresponde a 97 na tabela ascii, 96+1 = 97 = a, depois 96+2 = 98 = b, assim em diante
-            question = "Digite a letra \""+answer+"\"";
-            exerciseItems.add(new ExerciseItem(number+i,question,answer));
+        String questionType = "Emission";
+        for (int i = 1; i <= 26; i++) {
+            answer = Character.toString((char) (i + 96)); // letra a corresponde a 97 na tabela ascii, 96+1 = 97 = a, depois 96+2 = 98 = b, assim em diante
+            question = "Digite a letra \"" + answer + "\"";
+            exerciseItems.add(new ExerciseItem(number + i, question, answer, questionType));
         }
-        number = number +27;
-        answer = "ç" ;
+        number = number + 27;
+        answer = "ç";
         question = "Digite a letra ç";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
 
-        number = number +1;
+        number = number + 1;
         answer = Character.toString((char) (8)); // espaço em ascii
-        question = "Digite a letra espaço";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
+        question = "Digite \nespaço";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
     }
 
-    public void wordExercises1(){
+    public void wordExercises1() {
         String answer;
         String question;
-        number = number +1;
+        String questionType;
+        number = number + 1;
         question = "Digite a palavra lata";
         answer = "lata";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra bola";
         answer = "bola";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra suco";
         answer = "suco";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra menino";
         answer = "menino";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra folha";
         answer = "folha";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra chuva";
         answer = "chuva";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a palavra caminho";
         answer = "caminho";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
     }
 
-    public void upperCaseExercises(){
+    public void upperCaseExercises() {
         String answer;
         String question;
-        for(int i = 1; i<=26; i++){
-            answer = Character.toString((char) (i+64)); // letra A corresponde a 65 na tabela ascii, 64+1 = 65 = A, depois 64+2 = 66 = B, assim em diante
-            question = "Digite a letra \""+answer+"\"";
-            exerciseItems.add(new ExerciseItem(number+i,question,answer));
+        String questionType = "Emission";
+        for (int i = 1; i <= 26; i++) {
+            answer = Character.toString((char) (i + 64)); // letra A corresponde a 65 na tabela ascii, 64+1 = 65 = A, depois 64+2 = 66 = B, assim em diante
+            question = "Digite a letra \"" + answer + "\"";
+            exerciseItems.add(new ExerciseItem(number + i, question, answer,questionType));
         }
 
-        number = number+27;
+        number = number + 27;
 
     }
 
-    public void wordExercises2(){
+    public void wordExercises2() {
         String answer;
         String question;
+        String questionType;
 
         question = "Digite a palavra Taciana";
         answer = "Taciana";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra Maria Carolina";
+        question = "Digite a \npalavra \nMaria \nCarolina";
         answer = "Maria Carolina";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra Belo Horizonte";
+        question = "Digite a \npalavra \nBelo \nHorizonte";
         answer = "Belo Horizonte";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra UFMG";
+        question = "Digite a \npalavra \nUFMG";
         answer = "UFMG";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra CEP";
+        question = "Digite a \npalavra CEP";
         answer = "CEP";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra CPF";
+        question = "Digite a \npalavra \nCPF";
         answer = "CPF";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
     }
 
-    public void accentuationExercises(){
+    public void accentuationExercises() {
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite o acento agudo ´";
+        question = "Digite o \nacento \nagudo ´";
         answer = "´";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite a crase `";
         answer = "`";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o acento circunflexo ^";
+        question = "Digite o \nacento \ncircunflexo ^";
         answer = "^";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite o til ~";
         answer = "~";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite as aspas "+Character.toString((char) (8));
+        question = "Digite as aspas " + Character.toString((char) (8));
         answer = Character.toString((char) (34));
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra lápis";
+        question = "Digite a \npalavra \nlápis";
         answer = "lápis";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra lâmpada";
+        question = "Digite a \npalavra \nlâmpada";
         answer = "lâmpada";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra mão";
+        question = "Digite a \npalavra mão";
         answer = "mão";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra ão";
+        question = "Digite a \nsilaba ão";
         answer = "ão";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra ães";
+        question = "Digite a \nsilaba ães";
         answer = "ães";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra ãos";
+        question = "Digite a \nsilaba ãos";
         answer = "ãos";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra õe";
+        question = "Digite a \nsilaba õe";
         answer = "õe";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra ões";
+        question = "Digite a \nsilaba ões";
         answer = "ões";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra pão";
+        question = "Digite a \npalavra pão";
         answer = "pão";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra mãos";
+        question = "Digite a \npalavra mãos";
         answer = "mãos";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a palavra limões";
+        question = "Digite a \npalavra \nlimões";
         answer = "limões";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
     }
 
-    public void pontuationExercises(){
+    public void pontuationExercises() {
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite o ponto final (.)";
+        question = "Digite o \nponto \nfinal (.)";
         answer = ".";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a vírgula (,)";
+        question = "Digite a \nvírgula (,)";
         answer = "`";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o ponto e vírgula (;)";
+        question = "Digite o \nponto e \nvírgula (;)";
         answer = ";";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite dois pontos (:)";
+        question = "Digite dois \npontos (:)";
         answer = ":";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite ponto de interrogaçãp (?)";
+        question = "Digite \nponto de \ninterrogação (?)";
         answer = ":";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite ponto de exclamação (!)";
+        question = "Digite \nponto de \nexclamação (!)";
         answer = "!";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite a sequência, incluindo as vírgulas: 1,2,3";
+        question = "Digite a \nsequência, \nincluindo as \nvírgulas: 1,2,3";
         answer = "1,2,3";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite:"+ " ponto.";
+        question = "Digite:\n" + " ponto.";
         answer = "ponto.";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: o que?";
+        question = "Digite: \no que?";
         answer = "o que?";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: Nossa!";
+        question = "Digite: \nNossa!";
         answer = "Nossa!";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
     }
 
-    public void simbolsExercises(){
+    public void simbolsExercises() {
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite o símbolo de arroba (@)";
+        question = "Digite o \nsímbolo de \narroba (@)";
         answer = "@";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de hashtag (#)";
+        question = "Digite o \nsímbolo de \nhashtag (#)";
         answer = "#";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de underline (_)";
+        question = "Digite o \nsímbolo de \nunderline (_)";
         answer = "_";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de cifrão ($)";
+        question = "Digite o \nsímbolo de \ncifrão ($)";
         answer = "$";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de porcentagem (%)";
+        question = "Digite o \nsímbolo de \nporcentagem (%)";
         answer = "%";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo &";
+        question = "Digite o \nsímbolo &";
         answer = "&";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de asterisco (*)";
+        question = "Digite o \nsímbolo de \nasterisco (*)";
         answer = "*";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o símbolo de grau (º)";
+        question = "Digite o \nsímbolo de \ngrau (º)";
         answer = "º";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: ana_12@gmail.com";
+        question = "Digite: \nana_12@gmail.com";
         answer = "ana_12@gmail.com";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: #foratemer";
+        question = "Digite: \n#foratemer";
         answer = "#foratemer";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: R$100,00";
+        question = "Digite: \nR$100,00";
         answer = "R$100,00";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite: 50%";
         answer = "50%";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
     }
 
-    public void delimitersExercises(){
+    public void delimitersExercises() {
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite aspas (\")";
+        question = "Digite aspas \n(\")";
         answer = "\"";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite parenteses esquerdo \"(\"";
+        question = "Digite \nparentese \nesquerdo \"(\"";
         answer = "(";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite colchete esquerdo ([)  ";
+        question = "Digite \ncolchete \nesquerdo ([)  ";
         answer = "[";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite chave esquerda ({)";
+        question = "Digite chave \nesquerda ({)";
         answer = "[";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite barra (/)";
+        question = "Digite \nbarra (/)";
         answer = "/";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite barra invertida (\\)";
+        question = "Digite barra \ninvertida (\\)";
         answer = "\\";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite  chave direita (})";
+        question = "Digite chave \ndireita (})";
         answer = "}";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite colchete direito (])";
+        question = "Digite \ncolchete \ndireito (])";
         answer = "]";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite parentese direito \" )\" ";
+        question = "Digite \nparentese \ndireito \" )\" ";
         answer = ")";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite aspas esquerda (\")";
+        question = "Digite \naspas \nesquerda (\")";
         answer = "\"";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite aspas simples (\')";
+        question = "Digite aspas \nsimples (\')";
         answer = "\'";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
         question = "Digite aspas (\")";
         answer = "\"";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: minúsculas (ativador 12)";
+        question = "Digite: \nminúsculas \n(ativador 12)";
         answer = "minúsculas (ativador 12)";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: \"verdade\"";
+        question = "Digite: \n\"verdade\"";
         answer = "\"verdade\"";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
     }
 
-    public void mathExercises(){
+    public void mathExercises() {
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite o sinal de soma (+)";
+        question = "Digite o \nsinal de \nsoma (+)";
         answer = "+";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de subtração (-)";
+        question = "Digite o \nsinal de \nsubtração (-)";
         answer = "-";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de  multiplicação (*)  ";
+        question = "Digite o \nsinal de  \nmultiplicação (*)  ";
         answer = "*";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de divisão (/)";
+        question = "Digite o \nsinal de \ndivisão (/)";
         answer = "/";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de igual (=)";
+        question = "Digite o \nsinal de \nigual (=)";
         answer = "=";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de diferente (\\)";
-        answer = "\\";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
 
-        question = "Digite  o sinal de menor que (<)";
+        question = "Digite o \nsinal de \nmenor que (<)";
         answer = "<";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite o sinal de maior que (>)";
+        question = "Digite o \nsinal de \nmaior que (>)";
         answer = "]";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: 4+5=9 ";
+        question = "Digite: \n4+5=9 ";
         answer = "4+5=9";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: 16/4=4";
+        question = "Digite: \n16/4=4";
         answer = "16/4=4";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: 13<14";
+        question = "Digite: \n13<14";
         answer = "13<14";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
     }
 
-    public void phrasesExercises(){
+    public void phrasesExercises() {
 
         String answer;
         String question;
+        String questionType;
 
-        question = "Digite: Escolha ser feliz!";
+        question = "Digite: \nEscolha ser \nfeliz!";
         answer = "Escolha ser feliz!";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: Aquele dia vai ficar na lembrança.";
+        question = "Digite: \nAquele dia \nvai ficar \nna lembrança.";
         answer = "Aquele dia vai ficar na lembrança.";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
-        question = "Digite: Essa vida é um mistério. Não sabemos de onde viemos, nem para onde vamos. De onde vem nossos pensamentos?";
+        question = "Digite: Essa vida \né um mistério. \nNão sabemos de \nonde viemos, \nnem para onde \nvamos. De onde \nvem nossos \npensamentos?";
         answer = "Essa vida é um mistério. Não sabemos de onde viemos, nem para onde vamos. De onde vem nossos pensamentos?";
-        exerciseItems.add(new ExerciseItem(number,question,answer));
-        number = number+1;
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
 
     }
 }
