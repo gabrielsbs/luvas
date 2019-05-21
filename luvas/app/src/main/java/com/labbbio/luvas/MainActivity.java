@@ -33,6 +33,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -50,6 +52,7 @@ import com.labbbio.luvas.fragments.ExerciseFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
+import com.labbbio.luvas.fragments.OptionsDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,20 +71,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int BLUETOOTH_FRAGMENT = 3;
     private static final int EXERCISE_FRAGMENT = 4;
 
+    private static final int VOICE_OPTION = 5;
+    private static final int GESTURE_OPTION = 6;
+
     private int currentFragment = HOME_FRAGMENT;
     private int lastFragment = HOME_FRAGMENT;
 
     private int lastViewLearning = 0;
 
-
     private int posLingLastExercise = 0;
     private int preLingLastExercise = 0;
-
+    private int currentQuestionNumeber;
+    private String currentQuestionType;
 
     private ArrayList<ExerciseItem> posExerciseItems = new ArrayList<>();
 
     private Scanner_BTLE scanner_btle;
-
 
     private static final String TAG = "MainActivity";
 
@@ -104,10 +109,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
-
     private BluetoothLeService mBluetoothLeService;
     private boolean mConnected = false;
     private boolean isBound = false;
+    private int answerOption = VOICE_OPTION;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
@@ -126,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return null;
     }
-
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -246,10 +250,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
-
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_conf, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.opt_menu:
+                openDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void openDialog(){
+        OptionsDialog optionsDialog = new OptionsDialog();
+        optionsDialog.show(getSupportFragmentManager(),"Options Dialog");
+    }
+
+    public void setOption(int option){
+        answerOption = option;
+        Log.d(TAG,"Option Selected");
+        if(currentFragment == EXERCISE_FRAGMENT){
+            refreshExerciseFragment();
+        }
+    }
 
     private void registerReceiver() {
 
@@ -323,7 +354,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = HOME_FRAGMENT;
     }
 
+    public int getAnswerOption() {
+        return answerOption;
+    }
+
     public void btFragmentStart() {
+
         navigationView.setCheckedItem(R.id.nav_devices);
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
@@ -348,6 +384,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void exerciseFragmentStart(String ExerciseType, int questionNumber){
+        currentQuestionType = ExerciseType;
+        currentQuestionNumeber = questionNumber;
         Bundle bundle = new Bundle();
         bundle.putString("ExerciseType",ExerciseType);
         bundle.putInt("questionNumber",questionNumber);
@@ -364,6 +402,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,exerciseFragment).commit();
             currentFragment = EXERCISE_FRAGMENT;
         }
+    }
+
+    public void refreshExerciseFragment(){
+        Bundle bundle = new Bundle();
+        bundle.putString("ExerciseType",currentQuestionType);
+        bundle.putInt("questionNumber",currentQuestionNumeber);
+        ExerciseFragment exerciseFragment =new ExerciseFragment();
+        exerciseFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,exerciseFragment).commit();
+        currentFragment = EXERCISE_FRAGMENT;
     }
 
 

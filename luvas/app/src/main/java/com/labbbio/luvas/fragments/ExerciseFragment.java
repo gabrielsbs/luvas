@@ -46,6 +46,8 @@ public class ExerciseFragment extends Fragment {
     private String questionType;
 
     public static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+    private static final int VOICE_OPTION = 5;
+    private static final int GESTURE_OPTION = 6;
 
 
     @Nullable
@@ -65,6 +67,7 @@ public class ExerciseFragment extends Fragment {
         ExerciseType = getArguments().getString("ExerciseType");
         questionNumber = getArguments().getInt("questionNumber");
 
+        int option = ((MainActivity) this.getActivity()).getAnswerOption();
 
         this.getActivity().setTitle("Exercício " + questionNumber);
 
@@ -88,8 +91,11 @@ public class ExerciseFragment extends Fragment {
 
         } else if (questionType.equals("Reception")) {
             ((MainActivity) this.getActivity()).sendMessage(answer);
-            startVoiceRecognitionActivity();
+            if(option == VOICE_OPTION )
+                startVoiceRecognitionActivity();
+            else if(option == GESTURE_OPTION){
 
+            }
         }
 
         IntentFilter intentF = new IntentFilter("incomingMessage");
@@ -129,6 +135,7 @@ public class ExerciseFragment extends Fragment {
 
     private void wrongAnswer() {
         ((MainActivity) this.getActivity()).sendMessage("Wrong");
+        ((MainActivity) this.getActivity()).refreshExerciseFragment();
         Toast.makeText(this.getContext(), "Reposta Errada", Toast.LENGTH_SHORT).show();
     }
 
