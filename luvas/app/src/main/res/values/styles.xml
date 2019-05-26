@@ -26,4 +26,8 @@
         <item name="android:listPreferredItemHeightLarge">30dp</item>
     </style>
 
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#28477A</item>
+    </style>
+
 </resources>

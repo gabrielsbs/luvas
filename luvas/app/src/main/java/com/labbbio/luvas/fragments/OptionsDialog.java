@@ -3,6 +3,7 @@ package com.labbbio.luvas.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 
 public class OptionsDialog extends AppCompatDialogFragment {
     private ListView listView;
-    private ArrayList<String> options;
+    private String[] options = {"Por voz","Escrever na tela"};
     private ArrayAdapter<String> arrayAdapter;
 
 
@@ -28,27 +29,15 @@ public class OptionsDialog extends AppCompatDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.AlertDialogCustom);
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_layout,null);
+        builder.setTitle("Escolha como deseja responder");
 
-        builder.setView(view)
-                .setTitle("Escolha como deseja responder");
-
-        options = new ArrayList<>();
-        options.add("Por voz");
-        options.add("Escrever na tela");
-        arrayAdapter = new ArrayAdapter<>(getActivity(),R.layout.opt_adapter_view,options);
-        listView = view.findViewById(R.id.optListView);
-        listView.setAdapter(arrayAdapter);
-        listView.setItemChecked(0, true);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        int checkedItem = ((MainActivity) this.getActivity()).getAnswerOption() - 5; //
+        builder.setSingleChoiceItems(options, checkedItem, new DialogInterface.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                listView.setItemChecked(position, true);
-                switch (position){
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
                     case 0:
                         setOption(VOICE_OPTION);
                         break;
@@ -59,6 +48,8 @@ public class OptionsDialog extends AppCompatDialogFragment {
                 dismiss();
             }
         });
+
+        builder.setNegativeButton("Cancelar", null);
 
         return builder.create();
     }
