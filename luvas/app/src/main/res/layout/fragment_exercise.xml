@@ -18,6 +18,7 @@
 
 
     <LinearLayout
+        android:id="@+id/linearView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textview_question"
@@ -39,8 +40,17 @@
             android:layout_gravity="center"
             app:srcCompat="@drawable/ic_send_"
             tools:ignore="VectorDrawableCompat"/>
-    </LinearLayout>
 
+
+    </LinearLayout>
+    <android.gesture.GestureOverlayView
+        android:id="@+id/gestures"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/linearView"
+        android:gestureColor="#2a69a5"
+        android:uncertainGestureColor="#e2e2e2" >
+    </android.gesture.GestureOverlayView>
 
 
 </RelativeLayout>

@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
+import android.gesture.Gesture;
+import android.gesture.GestureLibraries;
+import android.gesture.GestureLibrary;
+import android.gesture.GestureOverlayView;
+import android.gesture.Prediction;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
@@ -29,7 +34,7 @@ import java.util.ArrayList;
 import static android.app.Activity.RESULT_OK;
 
 
-public class ExerciseFragment extends Fragment {
+public class ExerciseFragment extends Fragment implements GestureOverlayView.OnGesturePerformedListener {
 
     private String TAG = "ExerciseFragment";
 
@@ -37,6 +42,8 @@ public class ExerciseFragment extends Fragment {
     private TextView questionView;
     private EditText answerView;
     private ImageButton send;
+    private GestureLibrary gLibrary;
+    private GestureOverlayView mView;
 
     private StringBuilder messages;
     private String ExerciseType;
@@ -62,6 +69,8 @@ public class ExerciseFragment extends Fragment {
         answerView = view.findViewById(R.id.answer);
         send = view.findViewById(R.id.button_send);
 
+        gLibrary = GestureLibraries.fromRawResource(this.getContext(), R.raw.gesture);
+        gLibrary.load();
         messages = new StringBuilder();
 
         ExerciseType = getArguments().getString("ExerciseType");
@@ -94,7 +103,8 @@ public class ExerciseFragment extends Fragment {
             if(option == VOICE_OPTION )
                 startVoiceRecognitionActivity();
             else if(option == GESTURE_OPTION){
-
+                mView =  view.findViewById(R.id.gestures);
+                mView.addOnGesturePerformedListener(this);
             }
         }
 
@@ -172,6 +182,20 @@ public class ExerciseFragment extends Fragment {
                 wrongAnswer();
         }
     }
+
+    public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
+        ArrayList<Prediction> predictions = gLibrary.recognize(gesture);
+        if (predictions.size() > 0) {
+            Prediction prediction = predictions.get(0);
+            String letter = prediction.name;
+
+
+            if (prediction.score > 1.0) {
+                answerView.setText(answerView.getText().toString() + letter);
+            }
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
