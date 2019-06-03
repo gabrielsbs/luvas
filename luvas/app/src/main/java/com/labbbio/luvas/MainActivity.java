@@ -190,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         dbHelper = new ExerciseDBHelper(this);
         database = dbHelper.getWritableDatabase();
-        readMsgFromDB();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         menu_lateral = findViewById(R.id.drawer_layout);
@@ -255,16 +254,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(currentFragment == EXERCISE_FRAGMENT){
             refreshExerciseFragment();
         }
-    }
-
-    public void readMsgFromDB(){
-        String[] column = {ExerciseItem.PersonalMsgEntry.COLUMN_MSG};
-        Cursor cursor = database.query(ExerciseItem.PersonalMsgEntry.TABLE_NAME, column, null, null, null, null, null);
-        int ex = cursor.getColumnIndex(column[0]);
-        while (cursor.moveToNext()) {
-            personalMsg.add(cursor.getString(ex));
-        }
-
     }
 
     private void registerReceiver() {

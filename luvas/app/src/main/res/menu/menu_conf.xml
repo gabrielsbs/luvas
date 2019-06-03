@@ -6,9 +6,4 @@
             android:title="Escolher Resposta"
             app:showAsAction="ifRoom">
         </item>
-        <item android:id="@+id/personal_msg_menu"
-            android:icon="@drawable/ic_add"
-            android:title="Adicionar mensagem personalizada"
-            app:showAsAction="ifRoom">
-        </item>
 </menu>
