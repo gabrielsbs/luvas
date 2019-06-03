@@ -46,5 +46,4 @@ public class ExerciseItem {
         public static final String COLUMN_LAST_PRELING = "lastPreLing";
         public static final String COLUMN_LAST_POSLING = "lastPosLing";
     }
-
 }

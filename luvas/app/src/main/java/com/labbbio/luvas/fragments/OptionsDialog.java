@@ -19,10 +19,8 @@ import com.labbbio.luvas.R;
 import java.util.ArrayList;
 
 public class OptionsDialog extends AppCompatDialogFragment {
-    private ListView listView;
-    private String[] options = {"Por voz","Escrever na tela"};
-    private ArrayAdapter<String> arrayAdapter;
 
+    private String[] options = {"Por voz","Escrever na tela"};
 
     private static final int VOICE_OPTION = 5;
     private static final int GESTURE_OPTION = 6;
@@ -48,7 +46,6 @@ public class OptionsDialog extends AppCompatDialogFragment {
                 dismiss();
             }
         });
-
         builder.setNegativeButton("Cancelar", null);
 
         return builder.create();

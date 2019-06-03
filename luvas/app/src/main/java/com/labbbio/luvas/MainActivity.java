@@ -3,8 +3,6 @@ package com.labbbio.luvas;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -13,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -42,7 +40,6 @@ import android.widget.Toast;
 
 
 import com.labbbio.luvas.ble.BluetoothLeService;
-import com.labbbio.luvas.ble.SampleGattAttributes;
 import com.labbbio.luvas.ble.Scanner_BTLE;
 import com.labbbio.luvas.ble.BTLE_Device;
 import com.labbbio.luvas.exercisedb.ExerciseDBHelper;
@@ -55,9 +52,6 @@ import com.labbbio.luvas.fragments.MessengerFragment;
 import com.labbbio.luvas.fragments.OptionsDialog;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -97,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ArrayList<BTLE_Device> btDevices;
 
     private String luvasName = null;
+    private ArrayList<String> personalMsg;
     private String mDeviceAddress;
     public String getLuvasName() {
         return luvasName;
@@ -114,22 +109,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isBound = false;
     private int answerOption = VOICE_OPTION;
 
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
-
-
     public ArrayList<ExerciseItem> getPosExerciseItemsItems() {
         return posExerciseItems;
-    }
-
-
-    public ExerciseItem getExercise(String type, int position){
-        if(type.equals("PosLing")){
-            return posExerciseItems.get(position);
-        }else if(type.equals("PreLing")){
-            return null;
-        }
-        return null;
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -151,12 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mBluetoothLeService = null;
             isBound = false;
         }
-
-
     };
-    public boolean isBound() {
-        return isBound;
-    }
 
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -192,11 +168,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -216,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         dbHelper = new ExerciseDBHelper(this);
         database = dbHelper.getWritableDatabase();
+        readMsgFromDB();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         menu_lateral = findViewById(R.id.drawer_layout);
@@ -264,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch(item.getItemId()){
             case R.id.opt_menu:
                 openDialog();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -273,13 +249,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         OptionsDialog optionsDialog = new OptionsDialog();
         optionsDialog.show(getSupportFragmentManager(),"Options Dialog");
     }
-
     public void setOption(int option){
         answerOption = option;
         Log.d(TAG,"Option Selected");
         if(currentFragment == EXERCISE_FRAGMENT){
             refreshExerciseFragment();
         }
+    }
+
+    public void readMsgFromDB(){
+        String[] column = {ExerciseItem.PersonalMsgEntry.COLUMN_MSG};
+        Cursor cursor = database.query(ExerciseItem.PersonalMsgEntry.TABLE_NAME, column, null, null, null, null, null);
+        int ex = cursor.getColumnIndex(column[0]);
+        while (cursor.moveToNext()) {
+            personalMsg.add(cursor.getString(ex));
+        }
+
     }
 
     private void registerReceiver() {
@@ -291,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerReceiver(auxiliarReceiver, BTIntent);
 
     }
-
 
     public void setLastFragment(int lastFragment) {
         this.lastFragment = lastFragment;
@@ -587,14 +571,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void startScan(){
         Log.d(TAG,"Starting scan");
-
         scanner_btle.start();
 
     }
 
     public void stopScan(){
         Log.d(TAG,"Stopping scan");
-
         scanner_btle.stop();
 
     }

@@ -51,6 +51,7 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     private String answerTried;
     private int questionNumber;
     private String questionType;
+    private ArrayList<ExerciseItem> exerciseItems, temp;
 
     public static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
     private static final int VOICE_OPTION = 5;
@@ -60,11 +61,10 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setRetainInstance(true);
         View view = inflater.inflate(R.layout.fragment_exercise, container, false);
 
         database = ((MainActivity) this.getActivity()).getDatabase();
-
-
         questionView = view.findViewById(R.id.textview_question);
         answerView = view.findViewById(R.id.answer);
         send = view.findViewById(R.id.button_send);
@@ -75,6 +75,12 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
 
         ExerciseType = getArguments().getString("ExerciseType");
         questionNumber = getArguments().getInt("questionNumber");
+
+        if(temp != null){
+            exerciseItems = temp;
+        }else{
+            exerciseItems = ((MainActivity) this.getActivity()).getPosExerciseItemsItems();
+        }
 
         int option = ((MainActivity) this.getActivity()).getAnswerOption();
 
@@ -105,6 +111,20 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
             else if(option == GESTURE_OPTION){
                 mView =  view.findViewById(R.id.gestures);
                 mView.addOnGesturePerformedListener(this);
+                send.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "Button pressed");
+                        String answerTried = answerView.getText().toString();
+                        answerView.getText().clear();
+                        if (answerTried.equals(answer)) {
+                            correctAnswer();
+                        } else {
+                            wrongAnswer();
+                        }
+
+                    }
+                });
             }
         }
 
@@ -150,12 +170,14 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     }
 
     private void goToNextQuestion() {
-        PosLingFragment.getInstance().updateLastExercise();
+        if(questionNumber > PosLingFragment.getInstance().getLastExercise()){
+            PosLingFragment.getInstance().updateLastExercise();
+        }
         ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseType, questionNumber + 1);
     }
 
     private void getQuestionText() {
-        ExerciseItem question = ((MainActivity) this.getActivity()).getExercise(ExerciseType, questionNumber - 1);
+        ExerciseItem question = exerciseItems.get(questionNumber - 1);
         String text = question.getQuestion();
         questionType = question.getQuestionType();
         Log.d(TAG, text);
@@ -200,6 +222,7 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "Destroy");
+        temp = exerciseItems;
         this.getActivity().setTitle("Mensageiro Luvas");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(incomingMessageReceiver);
     }

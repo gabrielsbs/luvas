@@ -55,11 +55,12 @@ public class PosLingFragment extends Fragment {
         exerciseItems = ((MainActivity) this.getActivity()).getPosExerciseItemsItems();
 
         setDatabase();
-        getLastExercise();
+        lastExercise();
 
         setRecyclerView(view);
         if(exerciseItems.size() == 0)
             createExerciseList();
+
 
         return view;
 
@@ -74,11 +75,12 @@ public class PosLingFragment extends Fragment {
         upperCaseExercises();
         wordExercises2();
         accentuationExercises();
-        pontuationExercises();
+        punctuationExercises();
         simbolsExercises();
         delimitersExercises();
         mathExercises();
         phrasesExercises();
+        personalMessagesExercises();
 
     }
 
@@ -117,7 +119,7 @@ public class PosLingFragment extends Fragment {
         Toast.makeText(this.getContext(), "Ainda não, faça a questão " + question + " primeiro", Toast.LENGTH_SHORT).show();
     }
 
-    public int getLastExercise() {
+    public int lastExercise() {
         String[] column = new String[]{ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING};
         Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME, column, null, null, null, null, null);
         int ex = cursor.getColumnIndex(ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING);
@@ -126,6 +128,10 @@ public class PosLingFragment extends Fragment {
             Log.d(TAG, "LastExercise = " + lastExercise);
         }
 
+        return lastExercise;
+    }
+
+    public int getLastExercise(){
         return lastExercise;
     }
 
@@ -146,128 +152,194 @@ public class PosLingFragment extends Fragment {
 
     public void numbersExercise() {
 
+        String question;
+        String answer;
+        String questionType;
 
-        //Questão teste
-        String question = "Qual é o número?";
-        String answer = "7";
-        String questionType = "Reception";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
+        /*Emissão de números de 1 digito*/
 
+        for(int i = 0; i<10; i++){
+            question = "Digite o número: "+Integer.toString(i);
+            answer = Integer.toString(i);
+            questionType = "Emission";
+            exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+            number = number + 1;
+        }
 
-        question = "Digite a \nsequência \n123456789";
-        answer = "123456789";
-        questionType = "Emission";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
-
-        //Questão 2
         question = "Digite o número 7";
         answer = "7";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 3
         question = "Digite o número 5";
         answer = "5";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 4
         question = "Digite o número 0";
         answer = "0";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 5
         question = "Digite o número 3";
         answer = "3";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 6
         question = "Digite o número 9";
         answer = "9";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 7
         question = "Digite o número 2";
         answer = "2";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 8
         question = "Digite o número 4";
         answer = "4";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 9
         question = "Digite o número 6";
         answer = "6";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 10
+        /* Recepção de números de 1 digito*/
+        question = "Qual é o número";
+        answer = "2";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "9";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "0";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "6";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "7";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "4";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        /* Emissão de número de 2 digitos*/
         question = "Digite o número 38";
         answer = "38";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 11
         question = "Digite o número 42";
         answer = "42";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 12
         question = "Digite o número 19";
         answer = "19";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 13
+        /*Recepção de números com 2 digitos*/
+        question = "Qual é o número";
+        answer = "38";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "72";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "50";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        /*Emissão de número com >3 digitos*/
         question = "Digite o número 432";
         answer = "432";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 14
         question = "Digite o número 569";
         answer = "569";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        //Questão 15
         question = "Digite o número 9258";
         answer = "9258";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+        /*Recepção de número com >3 digitos*/
+
+        question = "Qual é o número";
+        answer = "145";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "648";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é o número";
+        answer = "3982";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
     }
 
     public void lowCaseExercises() {
         String answer;
         String question;
+
+        /*Emissão de letras minúsculas*/
         String questionType = "Emission";
         for (int i = 1; i <= 26; i++) {
             answer = Character.toString((char) (i + 96)); // letra a corresponde a 97 na tabela ascii, 96+1 = 97 = a, depois 96+2 = 98 = b, assim em diante
             question = "Digite a letra \"" + answer + "\"";
             exerciseItems.add(new ExerciseItem(number + i, question, answer, questionType));
         }
+
         number = number + 27;
         answer = "ç";
         question = "Digite a letra ç";
@@ -278,13 +350,23 @@ public class PosLingFragment extends Fragment {
         question = "Digite \nespaço";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+        /*Recepção de letras minúsculas*/
+        questionType = "Reception";
+        for (int i = 1; i <= 26; i++) {
+            answer = Character.toString((char) (i + 96)); // letra a corresponde a 97 na tabela ascii, 96+1 = 97 = a, depois 96+2 = 98 = b, assim em diante
+            question = "Digite a letra \"" + answer + "\"";
+            exerciseItems.add(new ExerciseItem(number + i, question, answer, questionType));
+        }
+        number = number + 27;
     }
 
     public void wordExercises1() {
         String answer;
         String question;
         String questionType;
-        number = number + 1;
+
+        /*Exercícios de emissão*/
         question = "Digite a palavra lata";
         answer = "lata";
         questionType = "Emission";
@@ -325,6 +407,50 @@ public class PosLingFragment extends Fragment {
         answer = "caminho";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+        /*Exercícios de recepção*/
+        question = "Qual é a palavra?";
+        answer = "lata";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "bola";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "suco";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "menino";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "folha";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "chuva";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?";
+        answer = "caminho";
+        questionType = "Recepção";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+
     }
 
     public void upperCaseExercises() {
@@ -336,9 +462,15 @@ public class PosLingFragment extends Fragment {
             question = "Digite a letra \"" + answer + "\"";
             exerciseItems.add(new ExerciseItem(number + i, question, answer,questionType));
         }
+        number = number + 26;
 
+        questionType = "Reception";
+        for (int i = 1; i <= 26; i++) {
+            answer = Character.toString((char) (i + 64)); // letra A corresponde a 65 na tabela ascii, 64+1 = 65 = A, depois 64+2 = 66 = B, assim em diante
+            question = "Digite a letra \"" + answer + "\"";
+            exerciseItems.add(new ExerciseItem(number + i, question, answer,questionType));
+        }
         number = number + 27;
-
     }
 
     public void wordExercises2() {
@@ -346,6 +478,7 @@ public class PosLingFragment extends Fragment {
         String question;
         String questionType;
 
+        /*Exercicios de emissão*/
         question = "Digite a palavra Taciana";
         answer = "Taciana";
         questionType = "Emission";
@@ -486,7 +619,7 @@ public class PosLingFragment extends Fragment {
 
     }
 
-    public void pontuationExercises() {
+    public void punctuationExercises() {
         String answer;
         String question;
         String questionType;
@@ -498,7 +631,7 @@ public class PosLingFragment extends Fragment {
         number = number + 1;
 
         question = "Digite a \nvírgula (,)";
-        answer = "`";
+        answer = ",";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
@@ -539,8 +672,8 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Digite: \no que?";
-        answer = "o que?";
+        question = "Digite: \nO que?";
+        answer = "O que?";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
@@ -813,4 +946,71 @@ public class PosLingFragment extends Fragment {
         number = number + 1;
 
     }
+
+    public void personalMessagesExercises(){
+        String answer;
+        String question;
+        String questionType;
+
+        question = "Digite seu nome";
+        answer = "nome";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite seu CPF";
+        answer = "CPF";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+    }
+
 }
