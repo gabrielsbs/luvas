@@ -80,6 +80,8 @@ public class PosLingFragment extends Fragment {
         delimitersExercises();
         mathExercises();
         phrasesExercises();
+        textExercises();
+        dialogExercises();
         personalMessagesExercises();
 
     }
@@ -391,6 +393,32 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
+        /*Exercícios de recepção silabas simples*/
+        question = "Qual é a palavra?(mala)";
+        answer = "mala";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(pato)";
+        answer = "pato";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(moto)";
+        answer = "moto";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(caneta)";
+        answer = "caneta";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        /*Exercícios de emissão silabas com mais de 2 letras*/
         question = "Digite a palavra folha";
         answer = "folha";
         questionType = "Emission";
@@ -408,46 +436,22 @@ public class PosLingFragment extends Fragment {
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
 
-        /*Exercícios de recepção*/
-        question = "Qual é a palavra?";
-        answer = "lata";
-        questionType = "Recepção";
+        /*Exercícios de recepção silabas com mais de duas letras*/
+        question = "Qual é a palavra?(porta)";
+        answer = "porta";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Qual é a palavra?";
-        answer = "bola";
-        questionType = "Recepção";
+        question = "Qual é a palavra?(colher)";
+        answer = "colher";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Qual é a palavra?";
-        answer = "suco";
-        questionType = "Recepção";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
-
-        question = "Qual é a palavra?";
-        answer = "menino";
-        questionType = "Recepção";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
-
-        question = "Qual é a palavra?";
-        answer = "folha";
-        questionType = "Recepção";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
-
-        question = "Qual é a palavra?";
-        answer = "chuva";
-        questionType = "Emission";
-        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
-        number = number + 1;
-
-        question = "Qual é a palavra?";
-        answer = "caminho";
-        questionType = "Recepção";
+        question = "Qual é a palavra?(palhaço)";
+        answer = "palhaço";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
 
 
@@ -464,13 +468,6 @@ public class PosLingFragment extends Fragment {
         }
         number = number + 26;
 
-        questionType = "Reception";
-        for (int i = 1; i <= 26; i++) {
-            answer = Character.toString((char) (i + 64)); // letra A corresponde a 65 na tabela ascii, 64+1 = 65 = A, depois 64+2 = 66 = B, assim em diante
-            question = "Digite a letra \"" + answer + "\"";
-            exerciseItems.add(new ExerciseItem(number + i, question, answer,questionType));
-        }
-        number = number + 27;
     }
 
     public void wordExercises2() {
@@ -569,6 +566,27 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
+        /*Recepção de palavras acentuadas*/
+
+        question = "Qual é a palavra?(café)";
+        answer = "café";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(maçã)";
+        answer = "maçã";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(fogão)";
+        answer = "fogão";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+
+        /*Emissão de sílabas com til*/
         question = "Digite a \nsilaba ão";
         answer = "ão";
         questionType = "Emission";
@@ -614,6 +632,20 @@ public class PosLingFragment extends Fragment {
         question = "Digite a \npalavra \nlimões";
         answer = "limões";
         questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        /*Recepção de palavras terminadas com ão e õe*/
+
+        question = "Qual é a palavra?(sabão)";
+        answer = "sabão";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(botões)";
+        answer = "botões";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
@@ -681,6 +713,26 @@ public class PosLingFragment extends Fragment {
         question = "Digite: \nNossa!";
         answer = "Nossa!";
         questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        /*Recepção*/
+
+        question = "Qual é a palavra?(Sexta, sábado)";
+        answer = "Sexta, sábado";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(Tchau.)";
+        answer = "Tchau.";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(Tudo bem?)";
+        answer = "Tudo bem?";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
@@ -939,11 +991,65 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
+        /*Recepção*/
+        question = "Qual é a frase?(¿Você vem, no próximo dia de teste?)";
+        answer = "¿Você vem, no próximo dia de teste?";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+    }
+
+    public void dialogExercises(){
+        String answer;
+        String question;
+        String questionType;
+
+        question = "Responda a pergunta que irá receber.(¿Oi, tudo bem?)";
+        answer = "¿Oi, tudo bem?";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Responda a pergunta que irá receber.(¿Qual é o seu endereço?)";
+        answer = "¿Qual é o seu endereço?";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Responda a pergunta que irá receber.(¿Me passa o seu whatsapp?)";
+        answer = "¿Me passa o seu whatsapp?";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Responda a pergunta que irá receber.(Até a próxima. Estude bastante e juízo, hein?)";
+        answer = "Até a próxima. Estude bastante e juízo, hein?";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+
+    }
+
+    public void textExercises(){
+
+        String answer;
+        String question;
+        String questionType;
+
         question = "Digite: Essa vida \né um mistério. \nNão sabemos de \nonde viemos, \nnem para onde \nvamos. De onde \nvem nossos \npensamentos?";
         answer = "Essa vida é um mistério. Não sabemos de onde viemos, nem para onde vamos. De onde vem nossos pensamentos?";
         questionType = "Emission";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
+
+        question = "O que está recebendo?";
+        answer = "Você sabe com quem está lidando? Com uma pessoa forte, que usa os obstáculos como esada para subir na vida";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
 
     }
 
