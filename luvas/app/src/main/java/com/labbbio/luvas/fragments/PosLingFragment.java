@@ -156,12 +156,20 @@ public class PosLingFragment extends Fragment {
         String answer;
         String questionType;
 
-        /*Emissão de números de 1 digito*/
+        /*Emissão de números de 1 digito em ordem*/
 
         for(int i = 0; i<10; i++){
             question = "Digite o número: "+Integer.toString(i);
             answer = Integer.toString(i);
             questionType = "Emission";
+            exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+            number = number + 1;
+        }
+        /*Recepção de número de 1 digito em ordem*/
+        for(int i = 0; i<10; i++){
+            question = "Digite o número: "+Integer.toString(i);
+            answer = Integer.toString(i);
+            questionType = "Reception";
             exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
             number = number + 1;
         }

@@ -1,5 +1,6 @@
 package com.labbbio.luvas.fragments;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -89,6 +91,13 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
         getQuestionText();
 
         if (questionType.equals("Emission")) {
+
+            if (answerView.requestFocus()) {
+                ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(
+                        InputMethodManager.SHOW_FORCED,
+                        InputMethodManager.HIDE_IMPLICIT_ONLY
+                );
+            }
             send.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -105,6 +114,10 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
             });
 
         } else if (questionType.equals("Reception")) {
+
+            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+
             ((MainActivity) this.getActivity()).sendMessage(answer);
             if(option == VOICE_OPTION )
                 startVoiceRecognitionActivity();

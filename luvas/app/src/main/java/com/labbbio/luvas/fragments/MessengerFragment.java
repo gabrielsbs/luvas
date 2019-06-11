@@ -54,7 +54,6 @@ public class MessengerFragment extends Fragment {
         btnSend = view.findViewById(R.id.buttonSend);
         fab = view.findViewById(R.id.fab);
 
-
         setTextSize();
 
         if(temp != null){
