@@ -1,22 +1,18 @@
+/**
+ * OptionsDialog: special fragment, a popup window where the user can choose the response method for reception exercise,
+ * between: Voice response or drawn gestures on screen.
+ */
+
 package com.labbbio.luvas.fragments;
 
-
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-
-import java.util.ArrayList;
 
 public class OptionsDialog extends AppCompatDialogFragment {
 
@@ -50,7 +46,6 @@ public class OptionsDialog extends AppCompatDialogFragment {
 
         return builder.create();
     }
-
 
     public void setOption(int option){
         ((MainActivity)this.getActivity()).setOption(option);

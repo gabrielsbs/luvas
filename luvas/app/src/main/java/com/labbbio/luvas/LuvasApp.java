@@ -29,17 +29,11 @@ public class LuvasApp extends Application {
         return fontSize;
     }
 
-    public void setFontSize(int size){
-        this.fontSize = size;
-    }
 
     public String getBackgroundColor() {
         return backgroundColor;
     }
 
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
 
     public String getCardColor() {
         return cardColor;
@@ -49,11 +43,4 @@ public class LuvasApp extends Application {
         return highlightCardColor;
     }
 
-    public void setHighlightCardColor(String highlightCardColor) {
-        this.highlightCardColor = highlightCardColor;
-    }
-
-    public void setCardColor(String cardColor) {
-        this.cardColor = cardColor;
-    }
 }

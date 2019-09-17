@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDarkAlt"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -14,7 +15,8 @@
             android:id="@+id/title"
             android:layout_height="wrap_content"
             android:text="Dispositivos Encontrados:"
-            android:textSize="20dp"/>
+            android:textSize="40sp"
+            android:textColor="@color/yellow"/>
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

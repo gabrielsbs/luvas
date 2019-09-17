@@ -16,7 +16,6 @@ public class ExerciseItem {
         this.exerciseNumber = number;
         this.questionType = questionType;
         this.question = question;
-
         title = "Exercício "+ Integer.toString(exerciseNumber);
     }
 

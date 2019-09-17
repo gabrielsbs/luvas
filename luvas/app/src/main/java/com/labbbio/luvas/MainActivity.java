@@ -1,3 +1,19 @@
+/*
+--------------------------------------------------------------
+-------------- Glover's Messenger App ------------------------
+--------------------------------------------------------------
+                                      Gabriel Santos, Feb/2019
+*/
+
+/**
+ * The application is structured in 4 major Fragments:
+ *  - HomeFragment: Initial fragment, only has the menu to open the other Fragments
+ *  - BluetoothFragment: Fragment where the user can connect the app to the Luvas
+ *  - MessengerFragment: Fragment where the user can communicate with the Luvas
+ *  - LearningFragment: Fragment that contains the exercises for the deafblinds. It's divided in 2 Fragments: PosLingFragment and PreLingFragment
+ * The app uses a SQL database to store, even when the app is closed, the last exercises done by the user.
+ */
+
 package com.labbbio.luvas;
 
 import android.Manifest;
@@ -5,13 +21,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +51,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
 
 import com.labbbio.luvas.ble.BluetoothLeService;
 import com.labbbio.luvas.ble.Scanner_BTLE;
@@ -72,9 +85,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int lastFragment = HOME_FRAGMENT;
 
     private int lastViewLearning = 0;
-
-    private int posLingLastExercise = 0;
-    private int preLingLastExercise = 0;
     private int currentQuestionNumeber;
     private String currentQuestionType;
 
@@ -93,13 +103,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String luvasName = null;
     private ArrayList<String> personalMsg;
     private String mDeviceAddress;
-    public String getLuvasName() {
-        return luvasName;
-    }
-
-    public void setLuvasName(String luvasName) {
-        this.luvasName = luvasName;
-    }
 
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
@@ -109,10 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isBound = false;
     private int answerOption = VOICE_OPTION;
 
-    public ArrayList<ExerciseItem> getPosExerciseItemsItems() {
-        return posExerciseItems;
-    }
-
+    /** Bluetooth LE service, implemented in ble/BluetoothLeService */
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -185,9 +185,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         registerReceiver();
 
-        scanner_btle = new Scanner_BTLE(this,2000, -75);
+        scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        // This database is used to store the last exercise completed
+        // Implemented in exercisdb/ExerciseDBHelper
         dbHelper = new ExerciseDBHelper(this);
         database = dbHelper.getWritableDatabase();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setTheme(R.style.AppTheme_NoActionBar_Font);
         changeMenuFontSize();
 
+        /** Instantiate the lateral menu button*/
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, menu_lateral, toolbar, R.string.navigation_opener, R.string.navigation_closer) {
 
             @Override
@@ -226,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
+    /** Toolbar Menu, has only one option: open response method for reception exercises selection*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -244,10 +249,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    /**Opens the response method selection*/
     private void openDialog(){
         OptionsDialog optionsDialog = new OptionsDialog();
         optionsDialog.show(getSupportFragmentManager(),"Options Dialog");
     }
+
+    /** Set the selected type. If the current fragment is the the Exercise Fragment, the fragment is refreshed */
     public void setOption(int option){
         answerOption = option;
         Log.d(TAG,"Option Selected");
@@ -256,8 +264,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /** Function to register the BroadcastReceiver*/
     private void registerReceiver() {
-
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_UUID));
         registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         registerReceiver(auxiliarReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
@@ -266,18 +274,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
+
+
+    /**Set the lastFragment: Exercise, Messenger, Bluetooth, Learning or Home*/
     public void setLastFragment(int lastFragment) {
         this.lastFragment = lastFragment;
     }
 
-    public void setLastViewLearning(int lastViewLearning){
-        this.lastViewLearning = lastViewLearning;
-    }
-
-    public int getLastViewLearning(){
-        return lastViewLearning;
-    }
-
+    /**Lateral Menu navigation options*/
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
@@ -303,7 +315,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    // Vai ser chamado quando o botão voltar for clickado. Volta para o fragmento home.
+    /** This function is called when the back button is pressed. The possibles situations are:
+     *  - Closes the lateral menu, if it's open.
+     *  - If current fragment is Exercise Fragment, it goes back to the Learning Fragment.
+     *  - If current fragment is Home Fragment, the app is closed.
+     *  - Goes back to Home Fragment otherwise.
+    */
     @Override
     public void onBackPressed() {
         if (menu_lateral.isDrawerOpen(GravityCompat.START)) {
@@ -320,19 +337,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    // As funções seguintes iniciam um fragmento, HomeFragment precisa delas.
+    // The following functions start a Fragment. They are needed for the Home Fragment
     public void homeFragmentStart() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         navigationView.setCheckedItem(R.id.nav_home);
         currentFragment = HOME_FRAGMENT;
     }
 
-    public int getAnswerOption() {
-        return answerOption;
-    }
-
     public void btFragmentStart() {
-
         navigationView.setCheckedItem(R.id.nav_devices);
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
@@ -377,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    // Refresh the Exercise Fragment. Called when the user changes the response method
     public void refreshExerciseFragment(){
         Bundle bundle = new Bundle();
         bundle.putString("ExerciseType",currentQuestionType);
@@ -387,26 +400,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = EXERCISE_FRAGMENT;
     }
 
-
-    //Reinicia o fragmento atual para atualizar a mudança da fonte
-    public void refreshFragment() {
-        switch (currentFragment) {
-            case HOME_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                break;
-            case MESSENGER_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-                break;
-            case LEARNING_FRAGMENT:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
-                break;
-            case BLUETOOTH_FRAGMENT:
-                btFragmentStart();
-                break;
-        }
-
-    }
-
+    // Open the last fragment
     public void goLastFragment() {
         switch (lastFragment) {
             case HOME_FRAGMENT:
@@ -429,10 +423,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public int getCurrentFragment(){
-        return currentFragment;
-    }
-
     private void changeMenuFontSize() {
         int size = ((LuvasApp)getApplication()).getFontSize();
         Spannable span = new SpannableString("Home");
@@ -452,6 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    // Function for enabling/disabling the cellphone's bluetooth
     public void enableDisableBT() {
         if (mBluetoothAdapter == null) {
             Log.d(TAG, "enableDisableBT: Does not have BT capabilities.");
@@ -468,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    // Resultado do pedido para ligar o bluetooth
+    // This function is used to get the result of the enabling bluetooth request. If is ok, it starts the bluetooth fragment
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -557,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-
+    /**Functions to start/stop the bluetooth scan*/
     public void startScan(){
         Log.d(TAG,"Starting scan");
         scanner_btle.start();
@@ -583,19 +574,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //Getters and Setters
+
     public SQLiteDatabase getDatabase(){
         return this.database;
     }
 
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
+    public int getCurrentFragment(){
+        return currentFragment;
     }
 
+    public int getAnswerOption() {
+        return answerOption;
+    }
+
+    public String getLuvasName() {
+        return luvasName;
+    }
+
+    public void setLuvasName(String luvasName) {
+        this.luvasName = luvasName;
+    }
+
+    public void setLastViewLearning(int lastViewLearning){
+        this.lastViewLearning = lastViewLearning;
+    }
+
+    public int getLastViewLearning(){
+        return lastViewLearning;
+    }
+
+    public ArrayList<ExerciseItem> getPosExerciseItemsItems() {
+        return posExerciseItems;
+    }
 
     /**
      * This method is required for all devices running API23+

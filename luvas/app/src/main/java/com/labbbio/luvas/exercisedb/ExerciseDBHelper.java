@@ -1,3 +1,7 @@
+/**
+ * Manages the SQL database
+ */
+
 package com.labbbio.luvas.exercisedb;
 
 import android.content.ContentValues;
@@ -11,7 +15,7 @@ import com.labbbio.luvas.exercisedb.ExerciseItem.LastExerciseEntry;
 public class ExerciseDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "exerciselist.db";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 3; // If the developer wishes to change the database(i.e add a new column), raise this number
     private  String TAG = "ExerciseDBHelper";
 
     public ExerciseDBHelper(Context context){
@@ -36,13 +40,6 @@ public class ExerciseDBHelper extends SQLiteOpenHelper {
         db.insert( LastExerciseEntry.TABLE_NAME,null,cv);
 
     }
-
-    /**
-     *
-     * @param db deverá ser o nome em DATABASE_NAME
-     * @param oldVersion deverá ser o número guardado em DATABASE_VERSION
-     * @param newVersion deverá ser DATABASE_VERSION+1
-     */
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
