@@ -78,8 +78,8 @@ public class PosLingFragment extends Fragment {
         delimitersExercises();
         mathExercises();
         phrasesExercises();
-        dialogExercises();
         textExercises();
+        dialogExercises();
         personalMessagesExercises();
     }
 
@@ -571,6 +571,38 @@ public class PosLingFragment extends Fragment {
         number = number + 1;
 
         /*Recepção de palavras acentuadas*/
+
+        question = "Qual é a palavra?(café)";
+        answer = "café";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(maçã)";
+        answer = "maçã";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Qual é a palavra?(fogão)";
+        answer = "fogão";
+        questionType = "Reception";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+
+
+        /*Emissão de sílabas com til*/
+        question = "Digite a \nsilaba ão";
+        answer = "ão";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
+        question = "Digite a \nsilaba ães";
+        answer = "ães";
+        questionType = "Emission";
+        exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+        number = number + 1;
+
 
         question = "Qual é a palavra?(café)";
         answer = "café";
