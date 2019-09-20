@@ -33,16 +33,16 @@ public class DeviceListAdapter extends ArrayAdapter<BTLE_Device> {
         BTLE_Device device = mDevices.get(position);
 
         if (device != null) {
-            TextView deviceName = (TextView) convertView.findViewById(R.id.tvDeviceName);
-            TextView deviceAdress = (TextView) convertView.findViewById(R.id.tvDeviceAddress);
+            TextView deviceName =  convertView.findViewById(R.id.tvDeviceName);
+            TextView deviceAdress = convertView.findViewById(R.id.tvDeviceAddress);
 
             if (deviceName != null) {
                 deviceName.setText(device.getName());
-                deviceName.setTextColor(Color.parseColor(color));
+            //    deviceName.setTextColor(Color.parseColor(color));
             }
             if (deviceAdress != null) {
                 deviceAdress.setText(device.getAddress());
-                deviceAdress.setTextColor(Color.parseColor(color));
+              //  deviceAdress.setTextColor(Color.parseColor(color));
             }
         }
 

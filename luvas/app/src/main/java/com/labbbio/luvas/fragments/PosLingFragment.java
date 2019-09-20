@@ -1,6 +1,9 @@
-package com.labbbio.luvas.fragments;
+/**
+ * PosLingFragment: Fragment that contains the list of the pos-linguistic exercises.
+ * The exercises must be completed in order. The app blocks if the user tries to do otherwise.
+ */
 
-import android.content.ContentValues;
+package com.labbbio.luvas.fragments;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -60,13 +63,8 @@ public class PosLingFragment extends Fragment {
         setRecyclerView(view);
         if(exerciseItems.size() == 0)
             createExerciseList();
-
-
         return view;
-
-
     }
-
 
     public void createExerciseList() {
         numbersExercise();
@@ -83,9 +81,7 @@ public class PosLingFragment extends Fragment {
         textExercises();
         dialogExercises();
         personalMessagesExercises();
-
     }
-
 
     public void setDatabase() {
         database = ((MainActivity) this.getActivity()).getDatabase();
@@ -102,7 +98,6 @@ public class PosLingFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-
         mAdapter.setOnItemClickListener(new ExerciseAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -110,17 +105,16 @@ public class PosLingFragment extends Fragment {
                     callExerciseFragment(position + 1);
                 else
                     lockedQuestion();
-
             }
         });
     }
-
 
     public void lockedQuestion() {
         int question = lastExercise + 1;
         Toast.makeText(this.getContext(), "Ainda não, faça a questão " + question + " primeiro", Toast.LENGTH_SHORT).show();
     }
 
+    // Get the last exercise from the database
     public int lastExercise() {
         String[] column = new String[]{ExerciseItem.LastExerciseEntry.COLUMN_LAST_POSLING};
         Cursor cursor = database.query(ExerciseItem.LastExerciseEntry.TABLE_NAME, column, null, null, null, null, null);
@@ -137,6 +131,7 @@ public class PosLingFragment extends Fragment {
         return lastExercise;
     }
 
+    // Uptade the database
     public void updateLastExercise() {
         lastExercise = lastExercise + 1;
         String command = "UPDATE " +
@@ -147,23 +142,32 @@ public class PosLingFragment extends Fragment {
         database.execSQL(command);
     }
 
+    //Call the MainActivity function that start the ExerciseFragment
     public void callExerciseFragment(int questionNumber) {
         Log.d(TAG, "LastExercise = " + lastExercise);
         ((MainActivity) this.getActivity()).exerciseFragmentStart("PosLing" ,questionNumber);
     }
 
+    // In the following function, the exercises are incluided in the list
     public void numbersExercise() {
-
         String question;
         String answer;
         String questionType;
 
-        /*Emissão de números de 1 digito*/
+        /*Emissão de números de 1 digito em ordem*/
 
         for(int i = 0; i<10; i++){
             question = "Digite o número: "+Integer.toString(i);
             answer = Integer.toString(i);
             questionType = "Emission";
+            exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
+            number = number + 1;
+        }
+        /*Recepção de número de 1 digito em ordem*/
+        for(int i = 0; i<10; i++){
+            question = "Digite o número: "+Integer.toString(i);
+            answer = Integer.toString(i);
+            questionType = "Reception";
             exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
             number = number + 1;
         }
@@ -599,21 +603,22 @@ public class PosLingFragment extends Fragment {
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Digite a \nsilaba ãos";
-        answer = "ãos";
-        questionType = "Emission";
+
+        question = "Qual é a palavra?(café)";
+        answer = "café";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Digite a \nsilaba õe";
-        answer = "õe";
-        questionType = "Emission";
+        question = "Qual é a palavra?(maçã)";
+        answer = "maçã";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 
-        question = "Digite a \nsilaba ões";
-        answer = "ões";
-        questionType = "Emission";
+        question = "Qual é a palavra?(fogão)";
+        answer = "fogão";
+        questionType = "Reception";
         exerciseItems.add(new ExerciseItem(number, question, answer, questionType));
         number = number + 1;
 

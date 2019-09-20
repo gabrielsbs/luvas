@@ -1,5 +1,9 @@
+/**
+ * HomeFragment: Initial fragment, only has the menu to open the other Fragments
+ * The view has the following elements:
+ *  - Menu: A GridView with 3 rows, in each row is a clickable CardView, that opens one of the other 3 Fragments.
+ */
 package com.labbbio.luvas.fragments;
-
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,15 +24,12 @@ import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 
-
-
 public class HomeFragment extends Fragment {
 
     CardView messengerCard, learningCard, deviceCard;
     GridLayout gridLayout;
 
     private static final int HOME_FRAGMENT = 0;
-
 
     @Nullable
     @Override
@@ -41,18 +42,11 @@ public class HomeFragment extends Fragment {
 
         view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
         setCardsColor();
-
-
         changeCardText();
 
-        int size = ((LuvasApp) this.getActivity().getApplication()).getFontSize();
-        changeHomeTextSize(size);
-
         setClickEvent();
-
         return view;
     }
-
 
     private void setClickEvent() {
         messengerCard.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +61,6 @@ public class HomeFragment extends Fragment {
                 ((MainActivity)getActivity()).learningFragmentStart();
             }
         });
-
         deviceCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,32 +70,21 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    public void changeHomeTextSize(int size){
-
-        for(int i = 0; i<gridLayout.getChildCount();i++){
-            CardView childCard = (CardView) gridLayout.getChildAt(i);
-            LinearLayout linearLayout = (LinearLayout) childCard.getChildAt(0);
-            TextView tv = (TextView) linearLayout.getChildAt(1);
-            tv.setTextSize(size);
-        }
-
-    }
-
     public void changeCardText() {
         LinearLayout linearLayout = (LinearLayout) deviceCard.getChildAt(0);
         TextView txt = (TextView) linearLayout.getChildAt(1);
         if(((MainActivity) getActivity()).getLuvasName() != null){
             String color =((LuvasApp) this.getActivity().getApplication()).getHighlightCardColor();
             deviceCard.setCardBackgroundColor(Color.parseColor(color));
+            Log.d("HomeFragment", ((MainActivity) getActivity()).getLuvasName());
             String s = new String("Conectado à: " + ( (MainActivity) getActivity()).getLuvasName() );
             txt.setText(s);
         }
         else{
             String color =((LuvasApp) this.getActivity().getApplication()).getCardColor();
             deviceCard.setCardBackgroundColor(Color.parseColor(color));
-            txt.setText("Conectar Bluetooth");
+            txt.setText("Conectar");
         }
-
     }
 
     private void setCardsColor() {
@@ -111,8 +93,5 @@ public class HomeFragment extends Fragment {
         learningCard.setCardBackgroundColor(Color.parseColor(color));
         deviceCard.setCardBackgroundColor(Color.parseColor(color));
     }
-
-
-
 
 }

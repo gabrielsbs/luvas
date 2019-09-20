@@ -14,9 +14,10 @@
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/incommingMessage"
+        android:id="@+id/incomingMessage"
         android:text="Mensagens recebidas:"
-        android:textColor="@android:color/black"
+        android:textColor="@color/yellow"
+        android:textSize="40sp"
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -30,7 +31,6 @@
         android:layout_marginEnd="6dp"
         android:src="@drawable/ic_delete" />
 
-
     <LinearLayout
         android:id="@+id/send_message"
         android:layout_width="match_parent"
@@ -38,13 +38,14 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
 
-
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/outputText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/send_message"
             android:layout_weight="1"
+            android:textSize="30sp"
+            android:textColor="@color/yellow"
             app:backgroundTint="@color/yellow"
             android:hint="Mensagem para luvas"/>
 
@@ -54,6 +55,5 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_send_"
             tools:ignore="VectorDrawableCompat" />
-
     </LinearLayout>
 </RelativeLayout>

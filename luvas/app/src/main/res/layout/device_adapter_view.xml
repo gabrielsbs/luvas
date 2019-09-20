@@ -8,14 +8,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tvDeviceName"
-        android:textSize="25dp"
-        android:textColor="@android:color/black"/>
+        android:textSize="30sp"
+        android:textColor="@color/yellow"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tvDeviceAddress"
-        android:textSize="25dp"
-        android:textColor="@android:color/black"/>
+        android:textSize="30sp"
+        android:textColor="@color/yellow"/>
 
 </LinearLayout>

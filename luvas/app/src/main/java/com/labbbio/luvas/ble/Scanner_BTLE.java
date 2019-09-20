@@ -1,3 +1,7 @@
+/**
+ * Scanner for bluetooth le devices. Only consider the devices with a minimal signal strength
+ */
+
 package com.labbbio.luvas.ble;
 
 import android.bluetooth.BluetoothAdapter;
@@ -10,7 +14,6 @@ import android.util.Log;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 import com.labbbio.luvas.fragments.BluetoothFragment;
-
 
 public class Scanner_BTLE {
 
@@ -30,8 +33,6 @@ public class Scanner_BTLE {
         this.mainActivity = mainActivity;
 
         mHandler = new Handler();
-
-
 
         this.scanPeriod = scanPeriod;
         this.signalStrength = signalStrength;
@@ -70,7 +71,6 @@ public class Scanner_BTLE {
 
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
-//            mBluetoothAdapter.startLeScan(uuids, mLeScanCallback);
         }
         else {
             mScanning = false;

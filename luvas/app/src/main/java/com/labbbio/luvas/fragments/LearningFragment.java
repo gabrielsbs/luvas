@@ -1,3 +1,11 @@
+/**
+ * LearningFragment: Fragment that contains the exercises for the deafblinds. It's divided in 2 Fragments: PosLingFragment and PreLingFragment
+ * The view has the following elements:
+ *  - Viewpager with two tabs, one for the PreLingFragment and the other for the PosLingFragment.
+ *      - In each tab there will be a list of exercises
+ *  - Clickable CardView: the user can use this button to start the last exercise he/she has done.
+ */
+
 package com.labbbio.luvas.fragments;
 
 import android.graphics.Color;
@@ -14,16 +22,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LearningFragment extends Fragment {
 
@@ -35,22 +41,11 @@ public class LearningFragment extends Fragment {
     private int posLingLastExercise;
     private int preLingLastExercise;
     private int lastView;
-    private String temp;
-
-
-    private static final int LEARNING_FRAGMENT = 2;
-
-
     final String TAG = "Learning";
-
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
-
         View view = inflater.inflate(R.layout.fragment_learning,container, false);
 
         // Setting ViewPager for each Tabs
@@ -74,25 +69,22 @@ public class LearningFragment extends Fragment {
             }
         });
 
-
-
-
-        viewPager.setCurrentItem( ((MainActivity) this.getActivity()).getLastViewLearning() );
-
-
-
-
+        viewPager.setCurrentItem(((MainActivity) this.getActivity()).getLastViewLearning());
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
 
             }
 
+            /**
+             * @param i is equal to 0 means the selected page is the PreLingFragment, when
+             * it is equal to 1, means the selected page is the PosLingFragment
+             */
             @Override
             public void onPageSelected(int i) {
                 Log.d(TAG,"Page: "+i);
                 setLastViewPage(i);
-                if (i ==0){
+                if (i == 0){
                     if(preLingLastExercise>0){
                         changeCardText(new String("Voltar de onde parei"));
                     }
@@ -100,7 +92,7 @@ public class LearningFragment extends Fragment {
                         changeCardText(new String("Começar"));
                     }
 
-                }else if(i==1){
+                }else if(i == 1){
                     posLingLastExercise = ((PosLingFragment)adapter.mFragmentList.get(1)).getLastExercise();
                     Log.d(TAG,"LastExercise: "+posLingLastExercise);
                     if(posLingLastExercise>0){
@@ -110,8 +102,6 @@ public class LearningFragment extends Fragment {
                         changeCardText(new String("Começar"));
                     }
                 }
-
-
             }
 
             @Override
@@ -154,15 +144,12 @@ public class LearningFragment extends Fragment {
         buttonBT.setCardBackgroundColor(Color.parseColor(color));
     }
 
-
     // Add Fragments to Tabs
     private void setupViewPager(ViewPager viewPager) {
-
         adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new PreLingFragment(), "Pré-Linguistico");
         adapter.addFragment(new PosLingFragment(), "Pós-Linguistico");
         viewPager.setAdapter(adapter);
-
     }
 
     static class Adapter extends FragmentPagerAdapter {

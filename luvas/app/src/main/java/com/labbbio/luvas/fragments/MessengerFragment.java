@@ -1,3 +1,11 @@
+/**
+ * MessengerFragment: Fragment where the user can communicate with the Luvas.
+ * The view has the following elements:
+ *  - TextView for the received messages from Luvas.
+ *  - EditText for the user to send messages for the Luvas.
+ *  - FloatingActionButton for the user clear the received messages.
+ */
+
 package com.labbbio.luvas.fragments;
 
 import android.content.BroadcastReceiver;
@@ -39,8 +47,6 @@ public class MessengerFragment extends Fragment {
 
     final String TAG = "Messenger";
 
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,12 +56,9 @@ public class MessengerFragment extends Fragment {
         view.setBackgroundColor(Color.parseColor( ((LuvasApp) this.getActivity().getApplication()).getBackgroundColor() ));
 
         outputText = view.findViewById(R.id.outputText);
-        inputText = view.findViewById(R.id.incommingMessage);
+        inputText = view.findViewById(R.id.incomingMessage);
         btnSend = view.findViewById(R.id.buttonSend);
         fab = view.findViewById(R.id.fab);
-
-
-        setTextSize();
 
         if(temp != null){
             messages = temp;
@@ -99,29 +102,18 @@ public class MessengerFragment extends Fragment {
         return view;
     }
 
-
+    // Receiver called when a new message is received, then append the message to the StringBuilder
     private BroadcastReceiver incomingMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("Incoming","Broadcast OK");
             String text = intent.getStringExtra("message");
-            text = text.substring(0,1);
+            //text = text.substring(0,1);
             messages.append(text);
 
             inputText.setText(messages);
         }
     };
-
-    public void setTextSize(){
-        int size = ((LuvasApp) getActivity().getApplication()).getFontSize();
-        outputText.setTextSize(size);
-        inputText.setTextSize(size);
-
-        String color = (((LuvasApp) getActivity().getApplication()).getTextColor());
-        outputText.setTextColor(Color.parseColor(color));
-        inputText.setTextColor(Color.parseColor(color));
-    }
-
 
     @Override
     public void onDestroyView() {

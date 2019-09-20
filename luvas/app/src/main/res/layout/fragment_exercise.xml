@@ -15,8 +15,6 @@
         android:textSize="70sp"
         android:textColor="@color/yellow"/>
 
-
-
     <LinearLayout
         android:id="@+id/linearView"
         android:layout_width="match_parent"
@@ -43,6 +41,7 @@
 
 
     </LinearLayout>
+
     <android.gesture.GestureOverlayView
         android:id="@+id/gestures"
         android:layout_width="fill_parent"
