@@ -48,6 +48,10 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    private void test(){
+        System.out.print("teste");
+    }
+
     private void setClickEvent() {
         messengerCard.setOnClickListener(new View.OnClickListener() {
             @Override
