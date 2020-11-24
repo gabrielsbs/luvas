@@ -1,13 +1,14 @@
-package com.labbbio.luvas.ble;
+package com.labbbio.luvas.model;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 
-public class BTLE_Device {
+public class Device {
 
     private BluetoothDevice bluetoothDevice;
     private int rssi;
 
-    public BTLE_Device(BluetoothDevice bluetoothDevice) {
+    public Device(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
     }
 
@@ -15,6 +16,7 @@ public class BTLE_Device {
         return bluetoothDevice.getAddress();
     }
 
+    @SuppressLint("MissingPermission")
     public String getName() {
         return bluetoothDevice.getName();
     }

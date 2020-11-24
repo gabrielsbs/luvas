@@ -4,6 +4,7 @@
 
 package com.labbbio.luvas.ble;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -15,6 +16,7 @@ import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 import com.labbbio.luvas.fragments.BluetoothFragment;
 
+@SuppressLint("MissingPermission")
 public class Scanner_BTLE {
 
     private MainActivity mainActivity;
@@ -79,6 +81,7 @@ public class Scanner_BTLE {
     }
 
     // Device scan callback.
+
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
 

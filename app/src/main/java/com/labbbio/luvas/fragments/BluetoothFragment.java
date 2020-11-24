@@ -6,6 +6,7 @@
  */
 package com.labbbio.luvas.fragments;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -14,10 +15,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,8 +30,8 @@ import android.widget.ListView;
 
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-import com.labbbio.luvas.ble.BTLE_Device;
 import com.labbbio.luvas.ble.DeviceListAdapter;
+import com.labbbio.luvas.model.Device;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,9 +50,9 @@ public class BluetoothFragment extends Fragment{
     BluetoothDevice btDevice;
     UUID uuid;
     BluetoothAdapter bluetoothAdapter;
-    public ArrayList<BTLE_Device> btDevices = new ArrayList<>();
-    private ArrayList<BTLE_Device> temp;
-    private HashMap<String, BTLE_Device> btDevicesHashMap = new HashMap<>();
+    public ArrayList<Device> btDevices = new ArrayList<>();
+    private ArrayList<Device> temp;
+    private HashMap<String, Device> btDevicesHashMap = new HashMap<>();
     public DeviceListAdapter deviceListAdapter;
     ListView lvNewDevices;
 
@@ -94,6 +95,7 @@ public class BluetoothFragment extends Fragment{
         //ClickListen for the discovered devices list
         lvNewDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @SuppressLint("MissingPermission")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //First cancel discovery because its very memory intensive.
@@ -136,7 +138,7 @@ public class BluetoothFragment extends Fragment{
         Log.d(TAG,"Add Device");
         String address = device.getAddress();
         if (!btDevicesHashMap.containsKey(address)) {
-            BTLE_Device btleDevice = new BTLE_Device(device);
+            Device btleDevice = new Device(device);
             btleDevice.setRSSI(new_rssi);
 
             btDevicesHashMap.put(address, btleDevice);

@@ -17,6 +17,7 @@
 package com.labbbio.luvas;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -26,51 +27,44 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.AbsoluteSizeSpan;
+
+import androidx.annotation.Nullable;
+
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+
 import android.widget.Toast;
 
 import com.labbbio.luvas.ble.BluetoothLeService;
 import com.labbbio.luvas.ble.Scanner_BTLE;
-import com.labbbio.luvas.ble.BTLE_Device;
-import com.labbbio.luvas.exercisedb.ExerciseDBHelper;
-import com.labbbio.luvas.exercisedb.ExerciseItem;
+
 import com.labbbio.luvas.fragments.BluetoothFragment;
 import com.labbbio.luvas.fragments.ExerciseFragment;
 import com.labbbio.luvas.fragments.HomeFragment;
 import com.labbbio.luvas.fragments.LearningFragment;
 import com.labbbio.luvas.fragments.MessengerFragment;
 import com.labbbio.luvas.fragments.OptionsDialog;
+import com.labbbio.luvas.model.Device;
+import com.labbbio.luvas.model.Exercise;
+import com.labbbio.luvas.utils.PosLingExercisesLoader;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
-    private DrawerLayout menu_lateral;
-    private NavigationView navigationView;
 
     private static final int HOME_FRAGMENT = 0;
     private static final int MESSENGER_FRAGMENT = 1;
@@ -88,20 +82,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int currentQuestionNumeber;
     private String currentQuestionType;
 
-    private ArrayList<ExerciseItem> posExerciseItems = new ArrayList<>();
+    private ArrayList<Exercise> posExerciseItems = new ArrayList<>();
 
     private Scanner_BTLE scanner_btle;
 
     private static final String TAG = "MainActivity";
 
-    private SQLiteDatabase database;
-    private ExerciseDBHelper dbHelper;
-
     BluetoothAdapter mBluetoothAdapter;
-    public ArrayList<BTLE_Device> btDevices;
+    public ArrayList<Device> btDevices;
 
     private String luvasName = null;
-    private ArrayList<String> personalMsg;
     private String mDeviceAddress;
 
     public final static String EXTRA_DATA =
@@ -185,47 +175,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         registerReceiver();
 
+        posExerciseItems = PosLingExercisesLoader.createExerciseList();
         scanner_btle = new Scanner_BTLE(this,3000, -75);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // This database is used to store the last exercise completed
-        // Implemented in exercisdb/ExerciseDBHelper
-        dbHelper = new ExerciseDBHelper(this);
-        database = dbHelper.getWritableDatabase();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
-        menu_lateral = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         setTheme(R.style.AppTheme_NoActionBar_Font);
-        changeMenuFontSize();
-
-        /** Instantiate the lateral menu button*/
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, menu_lateral, toolbar, R.string.navigation_opener, R.string.navigation_closer) {
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                // Code here will be triggered once the drawer closes. Will hide the keyboard
-                super.onDrawerClosed(drawerView);
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                // Code here will be triggered once the drawer closes. Will hide the keyboard
-                super.onDrawerOpened(drawerView);
-                InputMethodManager inputMethodManager = (InputMethodManager)
-                        getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-            }
-        };
-
-        menu_lateral.addDrawerListener(toggle);
-        toggle.syncState();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-            navigationView.setCheckedItem(R.id.nav_home);
         }
     }
 
@@ -289,63 +248,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.lastFragment = lastFragment;
     }
 
-    /**Lateral Menu navigation options*/
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-        switch (menuItem.getItemId()) {
-            case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                currentFragment = HOME_FRAGMENT;
-                break;
-            case R.id.nav_messenger:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-                currentFragment = MESSENGER_FRAGMENT;
-                break;
-            case R.id.nav_treinamento:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LearningFragment()).commit();
-                currentFragment = LEARNING_FRAGMENT;
-                break;
-            case R.id.nav_devices:
-                currentFragment = BLUETOOTH_FRAGMENT;
-                btFragmentStart();
-                break;
-        }
-        menu_lateral.closeDrawer(GravityCompat.START);
-        return true;
-    }
 
     /** This function is called when the back button is pressed. The possibles situations are:
-     *  - Closes the lateral menu, if it's open.
      *  - If current fragment is Exercise Fragment, it goes back to the Learning Fragment.
      *  - If current fragment is Home Fragment, the app is closed.
      *  - Goes back to Home Fragment otherwise.
     */
     @Override
     public void onBackPressed() {
-        if (menu_lateral.isDrawerOpen(GravityCompat.START)) {
-            menu_lateral.closeDrawer(GravityCompat.START);
-        } else {
             if (currentFragment != HOME_FRAGMENT && currentFragment != EXERCISE_FRAGMENT)
                 homeFragmentStart();
             else if(currentFragment == EXERCISE_FRAGMENT)
                 learningFragmentStart();
             else
                 super.onBackPressed();
-        }
-
-
     }
 
     // The following functions start a Fragment. They are needed for the Home Fragment
     public void homeFragmentStart() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-        navigationView.setCheckedItem(R.id.nav_home);
         currentFragment = HOME_FRAGMENT;
     }
 
+    @SuppressLint("MissingPermission")
     public void btFragmentStart() {
-        navigationView.setCheckedItem(R.id.nav_devices);
         if(!mBluetoothAdapter.isEnabled())
             enableDisableBT();
         else{
@@ -357,14 +283,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void messengerFragmentStart() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessengerFragment()).commit();
-        navigationView.setCheckedItem(R.id.nav_messenger);
         currentFragment = MESSENGER_FRAGMENT;
     }
 
     public void learningFragmentStart() {
         LearningFragment f =  new LearningFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,f).commit();
-        navigationView.setCheckedItem(R.id.nav_treinamento);
         currentFragment = LEARNING_FRAGMENT;
     }
 
@@ -423,26 +347,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void changeMenuFontSize() {
-        int size = ((LuvasApp)getApplication()).getFontSize();
-        Spannable span = new SpannableString("Home");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_home).setTitle(span);
-        span = new SpannableString("Mensagens");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_messenger).setTitle(span);
-        span = new SpannableString("Exercícios");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 10, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_treinamento).setTitle(span);
-        span = new SpannableString("Conectar Luvas");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 14, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        navigationView.getMenu().findItem(R.id.nav_devices).setTitle(span);
-        span = new SpannableString("Bluetooth");
-        span.setSpan(new AbsoluteSizeSpan(size, true), 0, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-    }
 
     // Function for enabling/disabling the cellphone's bluetooth
+    @SuppressLint("MissingPermission")
     public void enableDisableBT() {
         if (mBluetoothAdapter == null) {
             Log.d(TAG, "enableDisableBT: Does not have BT capabilities.");
@@ -476,12 +383,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    //Registrador auxiliar usado para tratar eventos relacionados ao bluetooth
     private BroadcastReceiver auxiliarReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-
 
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 Log.d(TAG, "onReceive: ACTION FOUND.");
@@ -540,7 +445,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.d(TAG, "HomeFragment");
 //                    HomeFragment fragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                     luvasName = null;
-                 //   fragment.changeCardText();
                 }
             }
 
@@ -576,10 +480,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Getters and Setters
 
-    public SQLiteDatabase getDatabase(){
-        return this.database;
-    }
-
     public int getCurrentFragment(){
         return currentFragment;
     }
@@ -604,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return lastViewLearning;
     }
 
-    public ArrayList<ExerciseItem> getPosExerciseItemsItems() {
+    public ArrayList<Exercise> getPosExerciseItemsItems() {
         return posExerciseItems;
     }
 
@@ -621,20 +521,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int permissionCheck = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
+                permissionCheck += this.checkSelfPermission("Manifest.permission.BLUETOOTH");
+                permissionCheck += this.checkSelfPermission("Manifest.permission.BLUETOOTH_ADMIN");
             }
             if (permissionCheck != 0) {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001); //Any number
+                   this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN}, 1001); //Any number
                 }
             }
         } else {
             Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
     }
+
 
     @Override
     protected void onDestroy() {

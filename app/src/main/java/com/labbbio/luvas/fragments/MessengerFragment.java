@@ -14,11 +14,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +31,6 @@ import android.widget.TextView;
 import com.labbbio.luvas.LuvasApp;
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-
-import java.nio.charset.Charset;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class MessengerFragment extends Fragment {
     EditText outputText;

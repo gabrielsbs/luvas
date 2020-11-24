@@ -1,7 +1,6 @@
 package com.labbbio.luvas;
 
 import android.app.Application;
-import android.support.design.widget.TabLayout;
 
 
 public class LuvasApp extends Application {

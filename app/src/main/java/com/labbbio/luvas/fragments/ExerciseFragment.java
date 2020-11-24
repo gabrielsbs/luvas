@@ -13,10 +13,10 @@ import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
-import com.labbbio.luvas.exercisedb.ExerciseItem;
+import com.labbbio.luvas.model.Exercise;
 
 import java.util.ArrayList;
 
@@ -53,7 +53,7 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     private String answerTried;
     private int questionNumber;
     private String questionType;
-    private ArrayList<ExerciseItem> exerciseItems, temp;
+    private ArrayList<Exercise> exerciseItems, temp;
 
     public static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
     private static final int VOICE_OPTION = 5;
@@ -66,7 +66,6 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
         setRetainInstance(true);
         View view = inflater.inflate(R.layout.fragment_exercise, container, false);
 
-        database = ((MainActivity) this.getActivity()).getDatabase();
         questionView = view.findViewById(R.id.textview_question);
         answerView = view.findViewById(R.id.answer);
         send = view.findViewById(R.id.button_send);
@@ -184,13 +183,13 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
 
     private void goToNextQuestion() {
         if(questionNumber > PosLingFragment.getInstance().getLastExercise()){
-            PosLingFragment.getInstance().updateLastExercise();
+          //  PosLingFragment.getInstance().updateLastExercise();
         }
         ((MainActivity) this.getActivity()).exerciseFragmentStart(ExerciseType, questionNumber + 1);
     }
 
     private void getQuestionText() {
-        ExerciseItem question = exerciseItems.get(questionNumber - 1);
+        Exercise question = exerciseItems.get(questionNumber - 1);
         String text = question.getQuestion();
         questionType = question.getQuestionType();
         Log.d(TAG, text);

@@ -2,23 +2,25 @@
  * Adapter for the list of exercises
  */
 
-package com.labbbio.luvas.exercisedb;
+package com.labbbio.luvas.adapter;
 
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.labbbio.luvas.R;
+import com.labbbio.luvas.model.Exercise;
 
 import java.util.ArrayList;
 
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
-    private ArrayList<ExerciseItem> exerciseItemArrayList;
+    private ArrayList<Exercise> exerciseItemArrayList;
     private OnItemClickListener mListener;
     private int lastExercise;
 
@@ -60,7 +62,7 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder exerciseViewHolder, int position) {
-        ExerciseItem currentItem = exerciseItemArrayList.get(position);
+        Exercise currentItem = exerciseItemArrayList.get(position);
         exerciseViewHolder.titleView.setText(currentItem.getExerciseTitle());
         int exercisePosition = position +1;
         if(exercisePosition<=lastExercise){
@@ -82,7 +84,7 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         this.lastExercise = lastExercise;
     }
 
-    public ExerciseAdapter(ArrayList<ExerciseItem> list){
+    public ExerciseAdapter(ArrayList<Exercise> list){
         this.exerciseItemArrayList = list;
    }
 }

@@ -1,8 +1,10 @@
-package com.labbbio.luvas.exercisedb;
+package com.labbbio.luvas.model;
 
 import android.provider.BaseColumns;
 
-public class ExerciseItem {
+import java.io.Serializable;
+
+public class Exercise implements Serializable {
 
     private int exerciseNumber;
     private String title;
@@ -11,7 +13,7 @@ public class ExerciseItem {
     private String questionType;
 
 
-    public ExerciseItem(int number , String question, String answer, String questionType) {
+    public Exercise(int number , String question, String answer, String questionType) {
         this.answer = answer;
         this.exerciseNumber = number;
         this.questionType = questionType;
@@ -38,7 +40,6 @@ public class ExerciseItem {
     public String getQuestionType() {
         return questionType;
     }
-
 
     public static final class LastExerciseEntry implements BaseColumns {
         public static final String TABLE_NAME = "lastExerciseList";

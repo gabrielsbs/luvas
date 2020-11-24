@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textview_question"
         android:orientation="horizontal">
-        <android.support.v7.widget.AppCompatEditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/answer"
             android:textColor="@color/yellow"
             app:backgroundTint="@color/yellow"
