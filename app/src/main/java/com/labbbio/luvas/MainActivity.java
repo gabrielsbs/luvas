@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeService mBluetoothLeService;
     private boolean mConnected = false;
     private boolean isBound = false;
-    private int answerOption = VOICE_OPTION;
+    private int answerOption = GESTURE_OPTION;
 
     /** Bluetooth LE service, implemented in ble/BluetoothLeService */
     private final ServiceConnection mServiceConnection = new ServiceConnection() {

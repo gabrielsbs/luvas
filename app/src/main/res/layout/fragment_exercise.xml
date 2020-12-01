@@ -48,6 +48,9 @@
         android:layout_height="fill_parent"
         android:layout_below="@id/linearView"
         android:gestureColor="#2a69a5"
+        android:gestureStrokeLengthThreshold='15.2'
+        android:gestureStrokeType="multiple"
+        android:fadeOffset="2000"
         android:uncertainGestureColor="#e2e2e2" >
     </android.gesture.GestureOverlayView>
 

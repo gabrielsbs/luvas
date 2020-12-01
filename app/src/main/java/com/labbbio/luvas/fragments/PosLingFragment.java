@@ -35,8 +35,7 @@ public class PosLingFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<Exercise> exerciseItems;
 
-    private int lastExercise;
-    private int number = 1;
+    private int lastExercise = 10;
 
     String TAG = "POSLINGFRAGMENT";
 

@@ -1,4 +1,4 @@
-package com.labbbio.luvas.fragments;
+    package com.labbbio.luvas.fragments;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -31,6 +31,8 @@ import com.labbbio.luvas.MainActivity;
 import com.labbbio.luvas.R;
 import com.labbbio.luvas.model.Exercise;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
@@ -55,6 +57,8 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     private String questionType;
     private ArrayList<Exercise> exerciseItems, temp;
 
+    private boolean saveMode = false;
+
     public static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
     private static final int VOICE_OPTION = 5;
     private static final int GESTURE_OPTION = 6;
@@ -70,7 +74,15 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
         answerView = view.findViewById(R.id.answer);
         send = view.findViewById(R.id.button_send);
 
-        gLibrary = GestureLibraries.fromRawResource(this.getContext(), R.raw.gesture);
+        File file = new File(this.getContext().getFilesDir() + "/" + "gesture.txt");
+        if(!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        gLibrary = GestureLibraries.fromFile( this.getContext().getFilesDir() + "/" + "gesture.txt");
         gLibrary.load();
         messages = new StringBuilder();
 
@@ -113,9 +125,6 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
             });
 
         } else if (questionType.equals("Reception")) {
-
-            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
 
             ((MainActivity) this.getActivity()).sendMessage(answer);
             if(option == VOICE_OPTION )
@@ -218,16 +227,28 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     }
 
     public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
-        ArrayList<Prediction> predictions = gLibrary.recognize(gesture);
-        if (predictions.size() > 0) {
-            Prediction prediction = predictions.get(0);
-            String letter = prediction.name;
+        if (saveMode) {
+            String gestureName = answerView.getText().toString();
+            gLibrary.addGesture(gestureName, gesture);
+            if (!gLibrary.save()) {
+                Log.e(TAG, "gesture not saved!");
+            }else {
+                Log.d(TAG, "save gesture" + gestureName);
+                Toast.makeText(this.getContext(), "save gesture: " + gestureName, Toast.LENGTH_LONG);
+            }
+        } else {
+            ArrayList<Prediction> predictions = gLibrary.recognize(gesture);
+            if (predictions.size() > 0) {
+                Prediction prediction = predictions.get(0);
+                String letter = prediction.name;
 
 
-            if (prediction.score > 1.0) {
-                answerView.setText(answerView.getText().toString() + letter);
+                if (prediction.score > 1.0) {
+                    answerView.setText(answerView.getText().toString() + letter);
+                }
             }
         }
+
     }
 
     @Override
