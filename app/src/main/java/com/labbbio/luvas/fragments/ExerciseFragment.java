@@ -10,6 +10,7 @@ import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
+import android.gesture.GestureStore;
 import android.gesture.Prediction;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -47,6 +48,7 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     private EditText answerView;
     private ImageButton send;
     private GestureLibrary gLibrary;
+    private GestureLibrary gLibraryTripleStrokes;
     private GestureOverlayView mView;
 
     private StringBuilder messages;
@@ -82,8 +84,21 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
                 e.printStackTrace();
             }
         }
+
+        File file2 = new File(this.getContext().getFilesDir() + "/" + "gesture2.txt");
+        if(!file2.exists()) {
+            try {
+                file2.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         gLibrary = GestureLibraries.fromFile( this.getContext().getFilesDir() + "/" + "gesture.txt");
         gLibrary.load();
+
+        gLibraryTripleStrokes = GestureLibraries.fromFile( this.getContext().getFilesDir() + "/" + "gesture2.txt");
+        gLibraryTripleStrokes.load();
         messages = new StringBuilder();
 
         ExerciseType = getArguments().getString("ExerciseType");
@@ -229,15 +244,27 @@ public class ExerciseFragment extends Fragment implements GestureOverlayView.OnG
     public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
         if (saveMode) {
             String gestureName = answerView.getText().toString();
-            gLibrary.addGesture(gestureName, gesture);
-            if (!gLibrary.save()) {
-                Log.e(TAG, "gesture not saved!");
-            }else {
-                Log.d(TAG, "save gesture" + gestureName);
-                Toast.makeText(this.getContext(), "save gesture: " + gestureName, Toast.LENGTH_LONG);
+            if (gesture.getStrokesCount() > 2) {
+                gLibraryTripleStrokes.addGesture(gestureName, gesture);
+                if (!gLibraryTripleStrokes.save()) {
+                    Log.e(TAG, "gesture not saved!");
+                }else {
+                    Log.d(TAG, "save triple stroke gesture: " + gestureName);
+                    Toast.makeText(this.getContext(), "save gesture: " + gestureName, Toast.LENGTH_LONG);
+                }
+            } else {
+                gLibrary.addGesture(gestureName, gesture);
+                if (!gLibrary.save()) {
+                    Log.e(TAG, "gesture not saved!");
+                }else {
+                    Log.d(TAG, "save gesture: " + gestureName);
+                    Log.d(TAG, "with number of strokes of: " + gesture.getStrokesCount());
+                    Toast.makeText(this.getContext(), "save gesture: " + gestureName, Toast.LENGTH_LONG);
+                }
             }
+
         } else {
-            ArrayList<Prediction> predictions = gLibrary.recognize(gesture);
+            ArrayList<Prediction> predictions =  gesture.getStrokesCount() > 2 ? gLibraryTripleStrokes.recognize(gesture) : gLibrary.recognize(gesture) ;
             if (predictions.size() > 0) {
                 Prediction prediction = predictions.get(0);
                 String letter = prediction.name;

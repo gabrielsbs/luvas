@@ -163,21 +163,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+      /*  if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE not supported", Toast.LENGTH_SHORT).show();
             finish();
-        }
+        }*/
 
         checkBTPermissions();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        btDevices = new ArrayList<>();
+        // btDevices = new ArrayList<>();
 
         registerReceiver();
 
         posExerciseItems = PosLingExercisesLoader.createExerciseList();
-        scanner_btle = new Scanner_BTLE(this,3000, -75);
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        //scanner_btle = new Scanner_BTLE(this,3000, -75);
+        //mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
